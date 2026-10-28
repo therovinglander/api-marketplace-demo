@@ -66,15 +66,62 @@ export function handleSandbox(capability: SandboxCapability, body: Record<string
   }
 }
 
-/** In-memory Idempotency-Key -> response store. Resets on restart (stated in the README). Bounded. */
+/** Stable JSON: object keys sorted recursively, so key order in the request body does not matter. */
+export function canonicalJson(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(canonicalJson).join(",")}]`;
+  if (v && typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    return `{${Object.keys(o).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(o[k])}`).join(",")}}`;
+  }
+  return JSON.stringify(v) ?? "null";
+}
+export const bodyHash = (body: unknown) => h(canonicalJson(body));
+
+interface Stored {
+  bodyHash: string;
+  result: SandboxResult;
+}
+
+/** In-memory Idempotency-Key -> (body hash, response) store. Resets on restart (stated in the README). Bounded. */
 export class IdempotencyStore {
-  private map = new Map<string, SandboxResult>();
+  private map = new Map<string, Stored>();
   constructor(private max = 5000) {}
   get(scope: string, key: string) {
     return this.map.get(`${scope}:${key}`);
   }
-  set(scope: string, key: string, value: SandboxResult) {
+  set(scope: string, key: string, value: Stored) {
     if (this.map.size >= this.max) this.map.delete(this.map.keys().next().value as string);
     this.map.set(`${scope}:${key}`, value);
   }
+}
+
+export interface ExecResult extends SandboxResult {
+  replayed: boolean;
+}
+
+/**
+ * Run a sandbox call with idempotency semantics for `book`:
+ * same key + same body -> stored response (replayed); same key + different body -> 422 idempotency_key_reused.
+ */
+export function executeSandbox(
+  capability: SandboxCapability,
+  body: Record<string, unknown>,
+  idempotencyKey: string | null,
+  store: IdempotencyStore,
+  scope: string,
+): ExecResult {
+  if (capability === "book" && idempotencyKey) {
+    const hash = bodyHash(body);
+    const prior = store.get(scope, idempotencyKey);
+    if (prior) {
+      if (prior.bodyHash !== hash) {
+        return { status: 422, body: { error: "idempotency_key_reused", message: "This Idempotency-Key was already used with a different request body." }, replayed: false };
+      }
+      return { ...prior.result, replayed: true };
+    }
+    const result = handleSandbox(capability, body, idempotencyKey);
+    if (result.status === 200) store.set(scope, idempotencyKey, { bodyHash: hash, result });
+    return { ...result, replayed: false };
+  }
+  return { ...handleSandbox(capability, body, idempotencyKey), replayed: false };
 }

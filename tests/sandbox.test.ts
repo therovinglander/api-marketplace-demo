@@ -4,7 +4,7 @@ import { FileRepo } from "@/lib/repo/file";
 import { COLLECTIONS } from "@/lib/repo/types";
 import { auditFor } from "@/lib/repo/audit";
 import { authenticate, generateKey, hashKey, OnboardingValidationError, recordFirstCall, signup } from "@/lib/onboarding";
-import { handleSandbox, IdempotencyStore, SANDBOX_CAPABILITIES } from "@/lib/sandbox";
+import { canonicalJson, executeSandbox, handleSandbox, IdempotencyStore, SANDBOX_CAPABILITIES } from "@/lib/sandbox";
 import { MarketplaceClient, AuthError, ValidationError } from "@/sdk";
 
 const seedDir = path.join(__dirname, "..", "seed");
@@ -96,9 +96,10 @@ describe("sandbox handlers", () => {
   });
   it("idempotency store is bounded", () => {
     const s = new IdempotencyStore(2);
-    s.set("a", "1", { status: 200, body: {} });
-    s.set("a", "2", { status: 200, body: {} });
-    s.set("a", "3", { status: 200, body: {} });
+    const v = { bodyHash: "x", result: { status: 200, body: {} } };
+    s.set("a", "1", v);
+    s.set("a", "2", v);
+    s.set("a", "3", v);
     expect(s.get("a", "1")).toBeUndefined();
     expect(s.get("a", "3")).toBeDefined();
   });
@@ -118,19 +119,53 @@ function inProcessFetch(r: FileRepo, store: IdempotencyStore, failFirst = 0): ty
       failures--;
       return Response.json({ error: "simulated 503" }, { status: 503 });
     }
-    const key = headers.get("idempotency-key");
-    if (cap === "book" && key) {
-      const prior = store.get(session._id, key);
-      if (prior) return Response.json(prior.body, { status: prior.status, headers: { "Idempotent-Replayed": "true" } });
-    }
-    const res = handleSandbox(cap, JSON.parse(String(init?.body)), key);
-    if (cap === "book" && key && res.status === 200) store.set(session._id, key, res);
-    if (res.status === 200) await recordFirstCall(r, session);
-    return Response.json(res.body, { status: res.status });
+    const res = executeSandbox(cap, JSON.parse(String(init?.body)), headers.get("idempotency-key"), store, session._id);
+    if (res.status === 200 && !res.replayed) await recordFirstCall(r, session);
+    return Response.json(res.body, { status: res.status, headers: res.replayed ? { "Idempotent-Replayed": "true" } : undefined });
   };
   (f as unknown as { calls: () => number }).calls = () => calls;
   return f as typeof fetch;
 }
+
+describe("idempotency key reuse (M3)", () => {
+  it("same key + same body replays; same key + different body -> 422 idempotency_key_reused", () => {
+    const store = new IdempotencyStore();
+    const first = executeSandbox("book", { rateKey: "rk_1", guestName: "A" }, "k1", store, "s1");
+    expect(first.status).toBe(200);
+    expect(first.replayed).toBe(false);
+    const again = executeSandbox("book", { rateKey: "rk_1", guestName: "A" }, "k1", store, "s1");
+    expect(again.replayed).toBe(true);
+    expect(again.body).toEqual(first.body);
+    const clash = executeSandbox("book", { rateKey: "rk_DIFFERENT", guestName: "B" }, "k1", store, "s1");
+    expect(clash.status).toBe(422);
+    expect(clash.body.error).toBe("idempotency_key_reused");
+    // the original booking is still what replays afterwards
+    expect(executeSandbox("book", { rateKey: "rk_1", guestName: "A" }, "k1", store, "s1").body).toEqual(first.body);
+  });
+  it("key order in the body does not matter (canonical body hash)", () => {
+    const store = new IdempotencyStore();
+    executeSandbox("book", { rateKey: "rk_1", guestName: "A" }, "k1", store, "s1");
+    const r = executeSandbox("book", { guestName: "A", rateKey: "rk_1" }, "k1", store, "s1");
+    expect(r.replayed).toBe(true);
+    expect(canonicalJson({ b: 1, a: { d: 2, c: 3 } })).toBe(canonicalJson({ a: { c: 3, d: 2 }, b: 1 }));
+  });
+  it("keys are scoped per session; failed (4xx) books are not stored", () => {
+    const store = new IdempotencyStore();
+    executeSandbox("book", { rateKey: "rk_1", guestName: "A" }, "k1", store, "s1");
+    expect(executeSandbox("book", { rateKey: "rk_2", guestName: "B" }, "k1", store, "s2").status).toBe(200);
+    expect(executeSandbox("book", { rateKey: "", guestName: "B" }, "k9", store, "s1").status).toBe(400);
+    expect(executeSandbox("book", { rateKey: "rk_3", guestName: "B" }, "k9", store, "s1").status).toBe(200);
+  });
+  it("SDK surfaces the 422 as ValidationError without retrying", async () => {
+    const r = repo();
+    const s = await signup(r, "Test Partner");
+    const f = inProcessFetch(r, new IdempotencyStore());
+    const client = new MarketplaceClient({ apiKey: s.apiKey, fetch: f, sleep: async () => undefined });
+    await client.book({ rateKey: "rk_1", guestName: "A" }, "dup");
+    await expect(client.book({ rateKey: "rk_2", guestName: "B" }, "dup")).rejects.toBeInstanceOf(ValidationError);
+    expect((f as unknown as { calls: () => number }).calls()).toBe(2);
+  });
+});
 
 describe("SDK against the sandbox logic (in-process)", () => {
   const noSleep = async () => undefined;

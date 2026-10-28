@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getRepo } from "@/lib/repo";
 import { authenticate, recordFirstCall } from "@/lib/onboarding";
-import { handleSandbox, IdempotencyStore, SANDBOX_CAPABILITIES, type SandboxCapability } from "@/lib/sandbox";
+import { executeSandbox, IdempotencyStore, SANDBOX_CAPABILITIES, type SandboxCapability } from "@/lib/sandbox";
 
 export const dynamic = "force-dynamic";
 
@@ -39,12 +39,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ capability: st
   }
 
   const key = req.headers.get("idempotency-key");
-  if (capability === "book" && key) {
-    const prior = idem().get(session._id, key);
-    if (prior) return NextResponse.json(prior.body, { status: prior.status, headers: { "Idempotent-Replayed": "true" } });
-  }
-  const result = handleSandbox(capability as SandboxCapability, body, key);
-  if (capability === "book" && key && result.status === 200) idem().set(session._id, key, result);
-  if (result.status === 200) await recordFirstCall(repo, session);
-  return NextResponse.json(result.body, { status: result.status });
+  const result = executeSandbox(capability as SandboxCapability, body, key, idem(), session._id);
+  if (result.status === 200 && !result.replayed) await recordFirstCall(repo, session);
+  return NextResponse.json(result.body, { status: result.status, headers: result.replayed ? { "Idempotent-Replayed": "true" } : undefined });
 }
