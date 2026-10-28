@@ -141,6 +141,24 @@ A large partner will not pay list price. The question is what to give for what. 
 - **Example.** The fictional bank commits 60M searches a month: 1M at list + 9M at 8% off + 50M at 15% off is **$20,712 instead of $24,000** at list, a blended 13.7% off ($0.000345 a search). The platform gives up $3,288 of margin in return for predictable volume. The fictional agency (800k searches, no commitment) pays list.
 - **Versioned price books.** Editing a deal never overwrites. It inserts the next version, marks the previous one `superseded`, and writes an audit entry, all in one transaction. An edit based on a stale version, or a concurrent write to the same version, is rejected with a 409 (backed by a unique `{partnerId, version}` index). The discount is always recomputed from the tier table, never taken from the request.
 
+## SDK, sandbox and onboarding
+
+A partner's first hour decides whether they integrate. The prototype covers that path end to end: sign up on `/onboarding`, get a sandbox key, make a first call with the SDK, and see how long it took.
+
+```ts
+import { MarketplaceClient } from "./sdk";
+
+const client = new MarketplaceClient({ apiKey: "sbx_...", baseUrl: "http://localhost:3000/api/v1/sandbox" });
+const quote = await client.search({ hotelId: "H-1001", checkIn: "2027-03-01", nights: 2 });
+const booking = await client.book({ rateKey: quote.rateKey, guestName: "Test Guest" });
+```
+
+- **Sandbox.** `POST /api/v1/sandbox/{search|book|content-mapping|room-mapping|dedupe|pricing|taxes}` with `Authorization: Bearer sbx_...`. Responses are deterministic stand-ins (same input, same output) and labelled illustrative. Keys come from `POST /api/v1/onboarding/signup`; only the SHA-256 of a key is stored, and the plaintext is shown once.
+- **Retry policy.** The SDK retries up to 3 times (4 calls in total) on HTTP 429, any 5xx, and network errors, with exponential backoff from 200 ms plus jitter. It never retries other 4xx responses. Errors are typed: `AuthError` (401/403), `ValidationError` (other 4xx), `RateLimitError` (429), `UpstreamError` (5xx or network), all extending `MarketplaceError`.
+- **Idempotency.** `book` always sends an `Idempotency-Key` and reuses the same key across retries, so a retry after a timeout cannot double-book. Repeating a key returns the stored response with an `Idempotent-Replayed: true` header. The store is **in memory and resets when the server restarts**, and it is bounded (5,000 entries), so this is a demo of the contract, not a durable guarantee.
+- **Simulating failures.** Send `X-Sandbox-Simulate: 429|500|502|503` to force that failure and watch the SDK retry.
+- **Time-to-first-call** is the onboarding metric: seconds from signup to the first successful authenticated call, recorded once per session and shown on `/onboarding` and at `GET /api/v1/onboarding/{sessionId}`. A partner team watches it because every minute between "key issued" and "first 200" is where integrations stall.
+
 ## Sources
 
 Public pages read 2026-10-28. Secondary sources, mostly vendor pages: treat figures as **vendor claims** and ranges, not facts.
