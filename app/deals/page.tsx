@@ -4,6 +4,7 @@ import { dealQuote } from "@/lib/pricing/deals";
 import { activeBook, listVersions } from "@/lib/pricing/dealsService";
 import { Badge, Card, PageTitle, num, usd } from "@/components/ui";
 import { editDealAction } from "./actions";
+import { SubmitButton } from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -71,15 +72,15 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
                 New committed volume / month
                 <input name="committedMonthlyVolume" type="number" min={0} step={100000} defaultValue={q.committedMonthlyVolume} className="mt-0.5 block w-40 rounded border border-stone-300 px-2 py-1 text-sm" />
               </label>
-              <input name="note" placeholder="Why (audit note)" className="min-w-32 flex-1 rounded border border-stone-300 px-2 py-1" />
-              <button className="rounded bg-teal-700 px-3 py-1 text-white hover:bg-teal-800">Save as new version</button>
+              <input name="note" aria-label="Why (audit note)" placeholder="Why (audit note)" className="min-w-32 flex-1 rounded border border-stone-300 px-2 py-1" />
+              <SubmitButton label="Save as new version" />
             </form>
             <ul className="mt-3 space-y-0.5 border-t border-stone-100 pt-2 text-xs text-stone-600">
               {versions.map((v) => {
                 const l = (v.lines as { committedMonthlyVolume: number; discountPct: number }[])[0];
                 return (
                   <li key={v._id}>
-                    v{String(v.version)} <Badge tone={v.status === "active" ? "teal" : "stone"}>{String(v.status)}</Badge> commit {num(l.committedMonthlyVolume)} → {l.discountPct}% · from {String(v.effectiveFrom).slice(0, 10)}
+                    v{String(v.version)} <Badge tone={v.status === "active" ? "teal" : "stone"}>{String(v.status)}</Badge> commit {num(l.committedMonthlyVolume)} → top tier {l.discountPct}% · from {String(v.effectiveFrom).slice(0, 10)}
                   </li>
                 );
               })}

@@ -6,7 +6,7 @@ A small web app that prototypes how a travel-tech company could **package its te
 
 ## Quick start
 
-Needs Node 20+ (developed on Node 24).
+Needs Node 22.9+ (developed on Node 24); `npm run seed` relies on `--env-file-if-exists`.
 
 ```bash
 npm install
@@ -180,7 +180,11 @@ Default rates borrow the *shape* of the public excess-fee examples. The numbers 
 - **Fictional company.** This is not modelled on, and does not describe, any real company.
 - **No marketplace P&L experience is implied.** This shows how I would frame the problem, not results from running one.
 - **Public-source research only,** mostly vendor marketing, so figures skew optimistic.
-- **Matching is a heuristic** tuned on 37 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data.
+- **Matching is a heuristic** tuned on 37 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data. Candidate generation is O(n²) and canonical-hotel union scans every canonical hotel, which is fine at this size and not at catalogue scale.
+- **Known gaps in dedupe.** Refreshing a still-open proposal (new score or rule version) does not write its own audit entry, so the audit "why" can lag the row. Transitive merges are not reconciled: after A-B and B-C are approved, A-C stays in the queue.
+- **Do not deploy as-is.** There is no authentication: anyone who can reach the app can approve matches, edit deals and mint sandbox keys, and signup has no rate limit. It is built to run locally. Add auth and limits before any public hosting, especially against a real Atlas database.
+- **Single process.** File mode serialises writes inside one Node process (transactions queue behind each other). It is not safe across multiple processes sharing one `.data/` folder. The idempotency store is in memory and resets on restart.
+- **Per-capability tiers assume every capability is called S times a month** (content mapping and pricing included); a real price book would use each capability's own volume.
 - **Mongo mode is manually verified, not covered by automated tests** (the tests are deliberately offline).
 - **Out of scope:** payments, real supplier calls, auctions or ranking models, multi-language SDKs, real authentication, hosting.
 

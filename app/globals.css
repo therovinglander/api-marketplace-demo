@@ -13,3 +13,9 @@ body {
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Visible keyboard focus on every interactive element. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

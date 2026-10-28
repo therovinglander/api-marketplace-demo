@@ -2,6 +2,9 @@
   "name": "api-marketplace-demo",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.9.0"
+  },
   "description": "Design prototype: packaging and pricing travel-tech capabilities as partner APIs. Fictional company, invented data.",
   "scripts": {
     "dev": "next dev",

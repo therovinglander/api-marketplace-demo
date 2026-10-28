@@ -66,7 +66,7 @@ const booking = await client.book({ rateKey: quote.rateKey, guestName: "Test Gue
 
       <Card title="1. Sign up">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <input value={name} onChange={(e) => setName(e.target.value)} disabled={!!session} placeholder="Partner name (fictional is fine)" className="min-w-64 flex-1 rounded border border-stone-300 px-2 py-1" />
+          <input value={name} onChange={(e) => setName(e.target.value)} disabled={!!session} aria-label="Partner name" placeholder="Partner name (fictional is fine)" className="min-w-64 flex-1 rounded border border-stone-300 px-2 py-1" />
           <button onClick={signup} disabled={busy || !!session || name.trim().length < 2} className="rounded bg-teal-700 px-3 py-1 text-white hover:bg-teal-800 disabled:opacity-40">
             Get a sandbox key
           </button>
