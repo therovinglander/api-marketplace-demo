@@ -1,0 +1,1581 @@
+[
+  {
+    "_id": "hr_SUP_A_0001",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0001",
+    "name": "Larkspur Harbour Hotel",
+    "address": {
+      "line1": "100 Queen Street West",
+      "city": "Toronto",
+      "region": "ON",
+      "country": "CA",
+      "postal": "M5H 2N2"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -79.3832,
+        43.6532
+      ]
+    },
+    "phone": "+1 416 555 0142",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0001",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0001",
+    "name": "The Larkspur Harbour",
+    "address": {
+      "line1": "100 Queen St. W",
+      "city": "Toronto",
+      "region": "ON",
+      "country": "CA",
+      "postal": "M5H2N2"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -79.383832,
+        43.65342
+      ]
+    },
+    "phone": "(416) 555-0142",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0001",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0001",
+    "name": "LARKSPUR HARBOUR HOTEL",
+    "address": {
+      "line1": "100 Queen St. W",
+      "city": "Toronto",
+      "region": "ON",
+      "country": "CA",
+      "postal": "m5h 2n2"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -79.382471,
+        43.654769
+      ]
+    },
+    "phone": null,
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0002",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0002",
+    "name": "Quillon Court Suites",
+    "address": {
+      "line1": "2250 Sherbrooke Street West",
+      "city": "Montreal",
+      "region": "QC",
+      "country": "CA",
+      "postal": "H3H 1G6"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -73.579,
+        45.499
+      ]
+    },
+    "phone": "+1 514 555 0177",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0002",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0002",
+    "name": "Quillon Court Suite Hotel",
+    "address": {
+      "line1": "2250 Sherbrooke St. W",
+      "city": "Montreal",
+      "region": "QC",
+      "country": "CA",
+      "postal": "H3H1G6"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -73.579248,
+        45.49839
+      ]
+    },
+    "phone": "(514) 555-0177",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0002",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0002",
+    "name": "Quillon Ct. Suites",
+    "address": {
+      "line1": "2250 sherbrooke st. w",
+      "city": "Montreal",
+      "region": "QC",
+      "country": "CA",
+      "postal": "h3h 1g6"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -73.576135,
+        45.498256
+      ]
+    },
+    "phone": "5145550177",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0003",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0003",
+    "name": "Marrow Bay Lodge",
+    "address": {
+      "line1": "780 Granville Street",
+      "city": "Vancouver",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V6Z 1K3"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -123.12,
+        49.283
+      ]
+    },
+    "phone": "+1 604 555 0119",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0003",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0003",
+    "name": "Marrow Bay Lodge & Spa",
+    "address": {
+      "line1": "780 Granville St.",
+      "city": "Vancouver",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V6Z1K3"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -123.120956,
+        49.282057
+      ]
+    },
+    "phone": "(604) 555-0119",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0003",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0003",
+    "name": "Marrow Bay Lodge",
+    "address": {
+      "line1": "708 Granville St.",
+      "city": "Vancouver",
+      "region": "BC",
+      "country": "CA",
+      "postal": "v6z 1k3"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -123.11833,
+        49.281872
+      ]
+    },
+    "phone": "6045550119",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0004",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0004",
+    "name": "Copperline Grand Hotel",
+    "address": {
+      "line1": "410 North Wabash Avenue",
+      "city": "Chicago",
+      "region": "IL",
+      "country": "US",
+      "postal": "60611"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -87.626,
+        41.89
+      ]
+    },
+    "phone": "+1 312 555 0163",
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0004",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0004",
+    "name": "Grand Copperline",
+    "address": {
+      "line1": "410 N Wabash Ave.",
+      "city": "Chicago",
+      "region": "IL",
+      "country": "US",
+      "postal": "60611"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -87.626831,
+        41.889545
+      ]
+    },
+    "phone": "(312) 555-0163",
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0004",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0004",
+    "name": "Copperline Grand",
+    "address": {
+      "line1": "410 n wabash ave.",
+      "city": "Chicago",
+      "region": "IL",
+      "country": "US",
+      "postal": "60611"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -87.625092,
+        41.889011
+      ]
+    },
+    "phone": null,
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0005",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0005",
+    "name": "Ashgrove Inn & Suites",
+    "address": {
+      "line1": "1600 Congress Avenue",
+      "city": "Austin",
+      "region": "TX",
+      "country": "US",
+      "postal": "78701"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -97.743,
+        30.28
+      ]
+    },
+    "phone": "+1 512 555 0188",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0005",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0005",
+    "name": "Ashgrove Inn and Suites",
+    "address": {
+      "line1": "1600 Congress Ave.",
+      "city": "Austin",
+      "region": "TX",
+      "country": "US",
+      "postal": "78701"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -97.741843,
+        30.279455
+      ]
+    },
+    "phone": "(512) 555-0188",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0005",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0005",
+    "name": "The Ashgrove Inn",
+    "address": {
+      "line1": "1600 Congress Ave.",
+      "city": "Austin",
+      "region": "TX",
+      "country": "US",
+      "postal": "78701"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -97.744314,
+        30.282361
+      ]
+    },
+    "phone": "5125550188",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0006",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0006",
+    "name": "Wren Street Hotel",
+    "address": {
+      "line1": "55 Wren Street",
+      "city": "Boston",
+      "region": "MA",
+      "country": "US",
+      "postal": "02108"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -71.064,
+        42.358
+      ]
+    },
+    "phone": "+1 617 555 0131",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0006",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0006",
+    "name": "Wren St Hotel",
+    "address": {
+      "line1": "55 Wren St.",
+      "city": "Boston",
+      "region": "MA",
+      "country": "US",
+      "postal": "02108"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -71.062599,
+        42.357159
+      ]
+    },
+    "phone": "(617) 555-0131",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0006",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0006",
+    "name": "Wren Street Boutique Hotel",
+    "address": {
+      "line1": "55 wren st.",
+      "city": "Boston",
+      "region": "MA",
+      "country": "US",
+      "postal": "02108"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -71.063473,
+        42.359624
+      ]
+    },
+    "phone": "6175550131",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0007",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0007",
+    "name": "Tamarack Peak Resort",
+    "address": {
+      "line1": "1900 Blake Street",
+      "city": "Denver",
+      "region": "CO",
+      "country": "US",
+      "postal": "80202"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -104.999,
+        39.753
+      ]
+    },
+    "phone": "+1 303 555 0154",
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0007",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0007",
+    "name": "Tamarack Peak Resort & Spa",
+    "address": {
+      "line1": "1900 Blake St.",
+      "city": "Denver",
+      "region": "CO",
+      "country": "US",
+      "postal": "80202"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -104.998359,
+        39.752983
+      ]
+    },
+    "phone": "(303) 555-0154",
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0007",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0007",
+    "name": "TAMARACK PEAK",
+    "address": {
+      "line1": "1900 Blake St.",
+      "city": "Denver",
+      "region": "CO",
+      "country": "US",
+      "postal": "80202"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -105.000392,
+        39.751726
+      ]
+    },
+    "phone": null,
+    "stars": 5,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0008",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0008",
+    "name": "Foghorn Point Hotel",
+    "address": {
+      "line1": "2100 Alaskan Way",
+      "city": "Seattle",
+      "region": "WA",
+      "country": "US",
+      "postal": "98121"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.35,
+        47.612
+      ]
+    },
+    "phone": "+1 206 555 0126",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0008",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0008",
+    "name": "The Foghorn Point",
+    "address": {
+      "line1": "2100 Alaskan Way",
+      "city": "Seattle",
+      "region": "WA",
+      "country": "US",
+      "postal": "98121"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.34814,
+        47.611938
+      ]
+    },
+    "phone": "(206) 555-0126",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0008",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0008",
+    "name": "Foghorn Pt. Hotel",
+    "address": {
+      "line1": "2100 alaskan way",
+      "city": "Seattle",
+      "region": "WA",
+      "country": "US",
+      "postal": "98121"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.35227,
+        47.612602
+      ]
+    },
+    "phone": "2065550126",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0009",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0009",
+    "name": "Eldermere Plaza",
+    "address": {
+      "line1": "330 Centre Street South",
+      "city": "Calgary",
+      "region": "AB",
+      "country": "CA",
+      "postal": "T2P 0K1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -114.063,
+        51.048
+      ]
+    },
+    "phone": "+1 403 555 0108",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0009",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0009",
+    "name": "Eldermere Plaza Hotel",
+    "address": {
+      "line1": "330 Centre St. S",
+      "city": "Calgary",
+      "region": "AB",
+      "country": "CA",
+      "postal": "T2P0K1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -114.063927,
+        51.047552
+      ]
+    },
+    "phone": "(403) 555-0108",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0009",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0009",
+    "name": "Eldermere Plaza",
+    "address": {
+      "line1": "303 Centre St. S",
+      "city": "Calgary",
+      "region": "AB",
+      "country": "CA",
+      "postal": "t2p 0k1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -114.066051,
+        51.048868
+      ]
+    },
+    "phone": "4035550108",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0010",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0010",
+    "name": "Brindle Row Hotel",
+    "address": {
+      "line1": "88 Elgin Street",
+      "city": "Ottawa",
+      "region": "ON",
+      "country": "CA",
+      "postal": "K1P 5K7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -75.693,
+        45.422
+      ]
+    },
+    "phone": "+1 613 555 0171",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0010",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0010",
+    "name": "Brindle Row",
+    "address": {
+      "line1": "88 Elgin St.",
+      "city": "Ottawa",
+      "region": "ON",
+      "country": "CA",
+      "postal": "K1P5K7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -75.693465,
+        45.421123
+      ]
+    },
+    "phone": "(613) 555-0171",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0010",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0010",
+    "name": "Brindle Row Hotel Ottawa",
+    "address": {
+      "line1": "88 elgin st.",
+      "city": "Ottawa",
+      "region": "ON",
+      "country": "CA",
+      "postal": "k1p 5k7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -75.694672,
+        45.422965
+      ]
+    },
+    "phone": null,
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0011",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0011",
+    "name": "Saltwick Suites",
+    "address": {
+      "line1": "720 SW Salmon Street",
+      "city": "Portland",
+      "region": "OR",
+      "country": "US",
+      "postal": "97205"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.68,
+        45.517
+      ]
+    },
+    "phone": "+1 503 555 0149",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0011",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0011",
+    "name": "Saltwick Hotel Suites",
+    "address": {
+      "line1": "720 SW Salmon St.",
+      "city": "Portland",
+      "region": "OR",
+      "country": "US",
+      "postal": "97205"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.680889,
+        45.515924
+      ]
+    },
+    "phone": "(503) 555-0149",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0011",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0011",
+    "name": "Saltwick Suites",
+    "address": {
+      "line1": "702 SW Salmon St.",
+      "city": "Portland",
+      "region": "OR",
+      "country": "US",
+      "postal": "97205"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -122.681061,
+        45.517894
+      ]
+    },
+    "phone": "5035550149",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_0012",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-0012",
+    "name": "Gannet Quay Hotel",
+    "address": {
+      "line1": "1550 Lower Water Street",
+      "city": "Halifax",
+      "region": "NS",
+      "country": "CA",
+      "postal": "B3J 1R7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -63.571,
+        44.648
+      ]
+    },
+    "phone": "+1 902 555 0136",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "ASTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_0012",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-0012",
+    "name": "Gannet Quay",
+    "address": {
+      "line1": "1550 Lower Water St.",
+      "city": "Halifax",
+      "region": "NS",
+      "country": "CA",
+      "postal": "B3J1R7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -63.571178,
+        44.647404
+      ]
+    },
+    "phone": "(902) 555-0136",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "BSTE",
+        "name": "One-Bedroom Suite",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_0012",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-0012",
+    "name": "The Gannet Quay Hotel",
+    "address": {
+      "line1": "1550 lower water st.",
+      "city": "Halifax",
+      "region": "NS",
+      "country": "CA",
+      "postal": "b3j 1r7"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -63.568976,
+        44.646641
+      ]
+    },
+    "phone": "9025550136",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "DELUXE KING",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "STANDARD TWIN",
+        "beds": 2,
+        "view": "garden"
+      },
+      {
+        "code": "CSTE",
+        "name": "ONE-BEDROOM SUITE",
+        "beds": 1,
+        "view": "water"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_decoy",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9001",
+    "name": "Larkspur Harbour Hotel",
+    "address": {
+      "line1": "9 Barrington Street",
+      "city": "Halifax",
+      "region": "NS",
+      "country": "CA",
+      "postal": "B3J 1Z4"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -63.5752,
+        44.6488
+      ]
+    },
+    "phone": "9025550999",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Standard King",
+        "beds": 1,
+        "view": "street"
+      }
+    ],
+    "illustrative": true
+  }
+]

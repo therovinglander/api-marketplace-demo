@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "p_agency",
+    "name": "Maple Row Travel (fictional agency)",
+    "segment": "agency",
+    "monthlySearches": 800000,
+    "l2b": 1000,
+    "notes": "Small agency, no commitment.",
+    "illustrative": true
+  },
+  {
+    "_id": "p_ota",
+    "name": "Kestrel Trips (fictional OTA)",
+    "segment": "ota",
+    "monthlySearches": 5000000,
+    "l2b": 1200,
+    "notes": "Mid-size OTA.",
+    "illustrative": true
+  },
+  {
+    "_id": "p_bank",
+    "name": "Northgate Rewards Bank (fictional)",
+    "segment": "bank",
+    "monthlySearches": 60000000,
+    "l2b": 2000,
+    "notes": "Large committed-volume partner.",
+    "illustrative": true
+  }
+]

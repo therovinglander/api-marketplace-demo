@@ -1,0 +1,43 @@
+[
+  {
+    "_id": "cache",
+    "hitRate": 0.3,
+    "ttlMinutes": 10,
+    "hitRateMax": 0.9,
+    "hitRateVendorClaim": 0.7,
+    "staleCap": 0.12,
+    "staleBase": 0.0015,
+    "failedCheckoutCost": 4,
+    "illustrative": true
+  },
+  {
+    "_id": "matching",
+    "ruleVersion": "v1",
+    "weights": {
+      "name": 0.35,
+      "address": 0.3,
+      "geo": 0.25,
+      "phone": 0.1
+    },
+    "strong": 0.85,
+    "review": 0.6,
+    "geoFullDecayMeters": 300,
+    "blockMeters": 500,
+    "blockPostalPrefix": 3,
+    "illustrative": true
+  },
+  {
+    "_id": "l2b_refs",
+    "duffel": {
+      "excessFeePerSearch": 0.005,
+      "aboveL2B": 1500,
+      "source": "duffel.com/pricing (vendor-listed, Oct 2026)"
+    },
+    "ndcGateway": {
+      "excessFeePerSearch": 0.05,
+      "aboveL2B": 400,
+      "source": "ndcgateway.com/en-US/pricing (vendor-listed, Oct 2026)"
+    },
+    "illustrative": true
+  }
+]

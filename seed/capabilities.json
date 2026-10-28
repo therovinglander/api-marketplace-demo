@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "search",
+    "name": "Search",
+    "unit": "search",
+    "summary": "Availability and rates across connected suppliers.",
+    "supplierCostPerCall": 0.000132,
+    "supplierCostPerBooking": 0.214,
+    "cacheable": true,
+    "sandboxExample": {
+      "hotelId": "H-1001",
+      "checkIn": "2027-03-01",
+      "nights": 2
+    },
+    "openapiPath": "/openapi/search.yaml",
+    "illustrative": true
+  },
+  {
+    "_id": "content-mapping",
+    "name": "Content & Property Mapping",
+    "unit": "search",
+    "summary": "Normalised property content and supplier-code crosswalk.",
+    "supplierCostPerCall": 0.00004,
+    "supplierCostPerBooking": 0,
+    "cacheable": true,
+    "sandboxExample": {
+      "supplierCode": "SUP_A",
+      "supplierHotelId": "A-0001"
+    },
+    "openapiPath": "/openapi/content-mapping.yaml",
+    "illustrative": true
+  },
+  {
+    "_id": "room-mapping",
+    "name": "Room Mapping",
+    "unit": "record",
+    "summary": "Match supplier room types to a canonical room list.",
+    "supplierCostPerCall": 0.002,
+    "supplierCostPerBooking": 0,
+    "cacheable": true,
+    "sandboxExample": {
+      "roomName": "Deluxe King City View"
+    },
+    "openapiPath": "/openapi/room-mapping.yaml",
+    "illustrative": true
+  },
+  {
+    "_id": "dedupe",
+    "name": "Dedupe",
+    "unit": "record",
+    "summary": "Detect duplicate properties across suppliers; propose merges for human review.",
+    "supplierCostPerCall": 0.001,
+    "supplierCostPerBooking": 0,
+    "cacheable": false,
+    "sandboxExample": {
+      "name": "Larkspur Harbour Hotel",
+      "postal": "M5H 2N2"
+    },
+    "openapiPath": "/openapi/dedupe.yaml",
+    "illustrative": true
+  },
+  {
+    "_id": "pricing",
+    "name": "Pricing",
+    "unit": "search",
+    "summary": "Final bookable price including supplier net-rate margin.",
+    "supplierCostPerCall": 0.00006,
+    "supplierCostPerBooking": 0,
+    "cacheable": false,
+    "sandboxExample": {
+      "hotelId": "H-1001",
+      "rateKey": "rk_demo"
+    },
+    "openapiPath": "/openapi/pricing.yaml",
+    "illustrative": true
+  },
+  {
+    "_id": "taxes",
+    "name": "Taxes & Fees",
+    "unit": "booking",
+    "summary": "Estimated taxes and mandatory fees per stay.",
+    "supplierCostPerCall": 0,
+    "supplierCostPerBooking": 0.02,
+    "cacheable": true,
+    "sandboxExample": {
+      "hotelId": "H-1001",
+      "nights": 2
+    },
+    "openapiPath": "/openapi/taxes.yaml",
+    "illustrative": true
+  }
+]

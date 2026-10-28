@@ -1,0 +1,32 @@
+{
+  "name": "api-marketplace-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design prototype: packaging and pricing travel-tech capabilities as partner APIs. Fictional company, invented data.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "seed:gen": "tsx seed/generate.ts",
+    "seed": "tsx --env-file-if-exists=.env scripts/seed.ts"
+  },
+  "dependencies": {
+    "mongodb": "^7.7.0",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

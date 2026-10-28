@@ -1,0 +1,85 @@
+[
+  {
+    "_id": "rp_search_flat_agency",
+    "capabilityId": "search",
+    "model": "flat",
+    "segment": "agency",
+    "label": "Flat $12,000/mo",
+    "params": {
+      "F": 12000
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_search_flat_bank",
+    "capabilityId": "search",
+    "model": "flat",
+    "segment": "bank",
+    "label": "Flat $60,000/mo",
+    "params": {
+      "F": 60000
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_search_per_search",
+    "capabilityId": "search",
+    "model": "per_search",
+    "segment": "all",
+    "label": "$0.0004 per search",
+    "params": {
+      "p": 0.0004
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_search_per_booking",
+    "capabilityId": "search",
+    "model": "per_booking",
+    "segment": "all",
+    "label": "$0.65 per confirmed booking",
+    "params": {
+      "q": 0.65
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_search_hybrid",
+    "capabilityId": "search",
+    "model": "hybrid",
+    "segment": "all",
+    "label": "Hybrid: $3000/mo includes 1500:1 look-to-book, then $0.005/excess search",
+    "params": {
+      "F": 3000,
+      "A": 1500,
+      "e": 0.005
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_content-mapping_hybrid",
+    "capabilityId": "content-mapping",
+    "model": "hybrid",
+    "segment": "all",
+    "label": "Hybrid: $1200/mo includes 3000:1 look-to-book, then $0.002/excess search",
+    "params": {
+      "F": 1200,
+      "A": 3000,
+      "e": 0.002
+    },
+    "illustrative": true
+  },
+  {
+    "_id": "rp_pricing_hybrid",
+    "capabilityId": "pricing",
+    "model": "hybrid",
+    "segment": "all",
+    "label": "Hybrid: $2000/mo includes 800:1 look-to-book, then $0.01/excess search",
+    "params": {
+      "F": 2000,
+      "A": 800,
+      "e": 0.01
+    },
+    "illustrative": true
+  }
+]

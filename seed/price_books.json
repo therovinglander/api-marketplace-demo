@@ -1,0 +1,36 @@
+[
+  {
+    "_id": "pb_p_agency_v1",
+    "partnerId": "p_agency",
+    "version": 1,
+    "status": "active",
+    "effectiveFrom": "2026-11-01T00:00:00.000Z",
+    "supersedes": null,
+    "lines": [
+      {
+        "capabilityId": "search",
+        "ratePlanId": "rp_search_per_search",
+        "committedMonthlyVolume": 0,
+        "discountPct": 0
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "pb_p_bank_v1",
+    "partnerId": "p_bank",
+    "version": 1,
+    "status": "active",
+    "effectiveFrom": "2026-11-01T00:00:00.000Z",
+    "supersedes": null,
+    "lines": [
+      {
+        "capabilityId": "search",
+        "ratePlanId": "rp_search_per_search",
+        "committedMonthlyVolume": 60000000,
+        "discountPct": 15
+      }
+    ],
+    "illustrative": true
+  }
+]
