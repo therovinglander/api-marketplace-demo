@@ -1,0 +1,164 @@
+# API Capability Marketplace: a design prototype
+
+A small web app that prototypes how a travel-tech company could **package its technical capabilities as paid partner APIs and price them**. Built to show product thinking: what to sell, how to charge for it, where the money leaks, and what a partner sees.
+
+> **Read this first.** Everything here is a *design prototype*, not a shipped product. The company is **fictional**, all data is **invented** and labelled "illustrative", and the research comes from **public sources only** (see [Sources](#sources)). Nothing here reflects inside knowledge of any real company's pricing, architecture or economics.
+
+## Quick start
+
+Needs Node 20+ (developed on Node 24).
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+```
+
+That is the whole setup. With no environment variables the app runs in **file mode**: it reads `seed/*.json` and writes your edits to `.data/` (git-ignored). Nothing else to install, no database.
+
+```bash
+npm test           # pure-logic tests; no database, no network (< 30 s)
+npm run typecheck
+npm run build
+```
+
+### Using MongoDB Atlas (optional)
+
+The data model targets MongoDB. To run against Atlas instead of files:
+
+1. Create a free **M0** cluster. Create a database user with `readWrite` on the database `marketplace_demo` only. Allow your IP.
+2. Copy `.env.example` to `.env` and fill in `MONGODB_URI` (and keep `MONGODB_DB=marketplace_demo`). `.env` is git-ignored; never commit it.
+3. `npm run seed` loads the seed data. It refuses to run unless `MONGODB_DB` is exactly `marketplace_demo`, and only drops and re-creates this app's collections.
+4. `npm run dev`. When `MONGODB_URI` is set the app uses Mongo; set `DATA_MODE=file` to force file mode again. If Atlas is unreachable, Mongo mode fails fast (5 s) with a clear message instead of hanging.
+
+The Mongo adapter (`lib/repo/mongo.ts`) is written against the same interface as the file adapter, but it is **not covered by the automated tests**, which are offline by design. Treat it as manually verified: seed, open `/mapping`, generate proposals, approve one, and check the `audit_log` collection.
+
+## What is in it
+
+| Page | Feature | What it shows |
+|---|---|---|
+| `/` | Catalog | Six fictional capabilities, each with a product card and an OpenAPI spec (`public/openapi/*.yaml`) |
+| `/calculator` | 1. Cost-per-booking calculator, 2. Excess-search tiers | Four ways to charge, side by side, with break-even volumes and per-capability excess fees |
+| `/mapping` | 4. Dedupe / property mapping | Duplicate hotel records across three suppliers, a match score and merge proposal, human approve/reject |
+| `/mapping/audit` | 4. Audit log | Append-only log of why each match was proposed and decided |
+
+## Product decisions (plain language)
+
+**Why these capabilities.** A travel marketplace's real products are not "an API", they are jobs partners need done: find availability (Search), get clean property data (Content & Property Mapping), match room types (Room Mapping), spot duplicates (Dedupe), get a final price (Pricing), and know the taxes (Taxes & Fees). Each is priced by the unit of work it costs to deliver, so price tracks cost.
+
+**Why Search has a look-to-book allowance.** Partners run hundreds to thousands of searches per booking, and every search costs the platform an upstream call. A flat per-search price makes the platform subsidise browsing-heavy partners. A *look-to-book (L2B) allowance* with a *fee per excess search* is how several public price lists handle it (see Sources). It lets a disciplined partner pay a small fixed fee, and charges a wasteful one for the cost it creates.
+
+**Why four price shapes.** Different partners want different things. A small agency wants a predictable flat fee. A large bank wants a unit price it can plan around. A platform wants to be paid in proportion to cost *and* to value. The calculator compares:
+
+| Model | Partner pays | Good for | Risk to the platform |
+|---|---|---|---|
+| Flat | fixed monthly fee | predictable budgets | heavy users are under-priced |
+| Per search | rate x searches | simplicity | partner bill ignores bookings, so cost per booking drifts with L2B |
+| Per confirmed booking | rate x confirmed bookings | aligned with partner revenue | browsing cost is hidden inside the booking price |
+| Hybrid | platform fee + fee on excess searches | most cases | needs a sensible allowance |
+
+**Why cost per booking is the number that matters.** A per-search rate looks cheap, but what a partner really pays is `rate per search x look-to-book`. See the worked example.
+
+## Pricing logic
+
+Definitions used throughout (all inputs are adjustable):
+
+| Symbol | Meaning | Default |
+|---|---|---|
+| `S` | searches per month | 5,000,000 |
+| `r` | look-to-book: searches per *attempted* booking | 1,000 |
+| `c` | share of attempted bookings that confirm | 0.85 |
+| `h` | cache hit rate | 0.30 |
+
+- Attempted bookings `B = S / r`. Confirmed bookings `Bc = B x c`. The effective look-to-book on confirmed bookings is `S / Bc = r / c`.
+- Allowances and excess fees are measured against **confirmed** bookings, which is how L2B allowances are usually stated.
+- Supplier cost = `S x (1 - h) x cost per search + Bc x cost per booking` (only cache misses call suppliers). Suppliers are blended 50/30/20.
+- Money is plain numbers in USD with no intermediate rounding; rounding happens only on display.
+- Each model's monthly bill is a straight line in volume (`bill = a + b x S` once `r` and `c` are fixed), so the **break-even volume between two models is closed form**, `S* = (a2 - a1) / (b1 - b2)`. It is shown as "None" when the lines are parallel or never cross inside the allowed range.
+- Excess-search tiers: `bill = F + S x max(0, 1 - A x c / r) x e`, where `F` is the platform fee, `A` the included allowance and `e` the fee per excess search.
+
+### Worked example (all numbers illustrative)
+
+Defaults: `S = 5M`, `r = 1,000`, `c = 0.85`, `h = 0.30`, agency segment.
+
+| Step | Calculation | Result |
+|---|---|---|
+| Confirmed bookings | 5,000,000 / 1,000 x 0.85 | **4,250** |
+| Effective look-to-book | 1,000 / 0.85 | **1,176 : 1** |
+| Supplier cost | 3.5M x $0.000132 + 4,250 x $0.214 = $462.00 + $909.50 | **$1,371.50** |
+| Flat bill | fixed | $12,000.00 |
+| Per-search bill | 5M x $0.0004 | $2,000.00 |
+| Per-booking bill | 4,250 x $0.65 | $2,762.50 |
+| Hybrid bill | $3,000 + excess; 1,176 is under the 1,500 allowance, so no excess | $3,000.00 |
+| Partner cost per booking (per-search) | $2,000 / 4,250 | **$0.47** |
+
+Now let the partner browse more: `r = 5,000`.
+
+- Per-search cost per confirmed booking: `$0.0004 x 5,000 / 0.85` = **$2.35** (was $0.47).
+- Per-booking price: still **$0.65**.
+- Hybrid at `r = 2,000`: 5M x (1 - 1,500 x 0.85 / 2,000) = 1,812,500 excess searches x $0.005 = $9,062.50 on top of $3,000, so **$12,062.50**. The excess fee is the lever that stops browsing-heavy partners being cheap to serve and costly to host.
+
+The same arithmetic is pinned in `tests/pricing.test.ts`.
+
+## Dedupe / property mapping
+
+The same hotel shows up under several supplier codes with messy data: abbreviations ("St." vs "Street"), transposed digits, geo drift of 50 to 300 m, missing phones. The seed has 12 invented hotels x 3 fictional suppliers plus one decoy with the same name in a different city.
+
+- **Blocking** (avoid comparing everything with everything): only compare records from *different* suppliers that share the first three characters of the postal code, or are within 500 m.
+- **Signals**, each 0 to 1: name (Jaro-Winkler on normalised, sorted tokens, or token overlap, whichever is higher), address (token overlap on street, city, postal), geo (`1 - distance / 300 m`, floored at 0), phone (exact match on digits).
+- **Weights**: name 0.35, address 0.30, geo 0.25, phone 0.10. If a phone is missing on either side, its weight is redistributed over the other signals and the audit reason says so.
+- **Thresholds**: score of 0.85 or more is proposed as *strong*; 0.60 to 0.85 as *review*; below 0.60 is not proposed.
+- **Nothing auto-merges.** A human approves or rejects. Approval writes the proposal status, the canonical hotel and the audit entry in one transaction. Approving a pair when one side is already in a canonical hotel *joins* it, so a cluster of three ends as one hotel with three members. A repeated decision is a no-op.
+- **Audit log** is append-only: the only write path is `appendAudit()`, and the repository rejects updates to that collection.
+
+Weights and thresholds are invented starting points, not tuned on real data.
+
+## Sources
+
+Public pages read 2026-10-28. Secondary sources, mostly vendor pages: treat figures as **vendor claims** and ranges, not facts.
+
+| Topic | Plain meaning | Source |
+|---|---|---|
+| Look-to-book ratio | Partners run hundreds to thousands of searches per booking; suppliers throttle or fee the excess | phptravels.com/blog/look-to-book-ratio-travel-api; lodgingbase.com/solutions/edge-cache |
+| Per-call price hides real cost | Cost per booking = per-search rate x L2B; the cheap rate can cost more | zentrumhub.com/blog/hotel-api-aggregator-pricing |
+| Excess-search fees | Duffel lists $0.005 per excess search above 1,500:1; NDC Gateway lists $0.05 above 400:1 (as listed Oct 2026) | duffel.com/pricing; ndcgateway.com/en-US/pricing |
+| Cache vs fresh price | Caches can cut up to ~70% of upstream calls (vendor claim) but risk "price changed at checkout" | lodgingbase.com; Sabre/OAG commentary via phptravels |
+| Hotel and room mapping | One hotel appears under many supplier codes; room mapping is harder than property mapping | giata.com; vervotech.com/hub/duplicate-hotel-mapping |
+| Pricing shapes | Per-call, per-booking, subscription, net-rate margin, often combined | zentrumhub.com; developers.amadeus.com/get-started/monetization-842 |
+
+Default rates borrow the *shape* of the public excess-fee examples. The numbers are not a claim about any company.
+
+## Limits (honest)
+
+- **Invented data.** Suppliers, partners, hotels, prices, costs, stale-price rates and every parameter are made up for illustration.
+- **Fictional company.** This is not modelled on, and does not describe, any real company.
+- **No marketplace P&L experience is implied.** This shows how I would frame the problem, not results from running one.
+- **Public-source research only,** mostly vendor marketing, so figures skew optimistic.
+- **Matching is a heuristic** tuned on 37 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data.
+- **Mongo mode is manually verified, not covered by automated tests** (the tests are deliberately offline).
+- **Out of scope:** payments, real supplier calls, auctions or ranking models, multi-language SDKs, real authentication, hosting.
+
+## What I would measure after launch
+
+- Cost per confirmed booking by partner segment, against the platform's supplier cost per booking.
+- Share of partners above their L2B allowance, and how much excess revenue that produces versus the support and churn it causes.
+- Look-to-book distribution per partner over time (does the allowance change behaviour?).
+- Dedupe precision and recall against a labelled sample; reviewer approve/reject rate and time per decision.
+- Time-to-first-call for new partners.
+
+## Repository layout
+
+```
+app/            Next.js pages and API routes (app/api/v1/*)
+components/     small shadcn-style UI primitives and the calculator
+lib/pricing/    calculator, excess tiers (pure)
+lib/matching/   text helpers, scoring, blocking, proposal service
+lib/repo/       repository interface with file and mongo implementations, audit log
+public/openapi/ one OpenAPI spec per capability
+seed/           invented seed data (generated deterministically: npm run seed:gen)
+scripts/        Atlas loader (npm run seed)
+tests/          vitest, pure logic
+```
+
+## Licence
+
+Original code. Cite the sources above rather than copying vendor text.
