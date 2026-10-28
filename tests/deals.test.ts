@@ -83,7 +83,7 @@ describe("price book versioning", () => {
     expect((await auditFor(r, "price_book", "pb_p_bank_v2"))).toHaveLength(1);
   });
 
-  it("concurrent edit on the same base version -> ConflictError (HTTP 409); only one v2 exists", async () => {
+  it("sequential edit on a stale base version -> ConflictError (HTTP 409); only one v2 exists", async () => {
     const r = repo();
     await editPriceBook(r, "p_bank", 1, 120_000_000, "a", undefined);
     await expect(editPriceBook(r, "p_bank", 1, 1_000_000, "b", undefined)).rejects.toBeInstanceOf(ConflictError);

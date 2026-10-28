@@ -89,14 +89,36 @@ export class FileRepo implements Repo {
     this.persist(coll);
   }
 
-  async transact<T>(fn: (tx: Repo) => Promise<T>): Promise<T> {
-    const snapshot = structuredClone(this.state);
-    try {
-      return await fn(this);
-    } catch (e) {
-      this.state = snapshot;
-      for (const c of COLLECTIONS) this.persist(c);
-      throw e;
-    }
+  /** Tail of the transaction queue. Transactions run strictly one at a time (single-process file mode). */
+  private queue: Promise<unknown> = Promise.resolve();
+
+  /** View handed to a running transaction: same data, but a nested transact() runs inline (no deadlock). */
+  private inTx(): Repo {
+    const self = this;
+    return {
+      mode: self.mode,
+      find: (c, f) => self.find(c, f),
+      findOne: (c, f) => self.findOne(c, f),
+      insert: (c, d) => self.insert(c, d),
+      update: (c, id, p) => self.update(c, id, p),
+      upsert: (c, d) => self.upsert(c, d),
+      transact: (fn) => fn(self.inTx()),
+    } as Repo;
+  }
+
+  transact<T>(fn: (tx: Repo) => Promise<T>): Promise<T> {
+    const run = async (): Promise<T> => {
+      const snapshot = structuredClone(this.state);
+      try {
+        return await fn(this.inTx());
+      } catch (e) {
+        this.state = snapshot;
+        for (const c of COLLECTIONS) this.persist(c);
+        throw e;
+      }
+    };
+    const p = this.queue.then(run, run);
+    this.queue = p.catch(() => undefined);
+    return p;
   }
 }
