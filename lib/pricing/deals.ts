@@ -26,9 +26,35 @@ export function discountForCommitment(committedMonthlyVolume: number): number {
   return pct;
 }
 
+/** Marginal brackets: each slice of volume is discounted at its own tier's rate (like income tax). */
+const BRACKETS: { upTo: number; discountPct: number }[] = [
+  { upTo: 1_000_000, discountPct: 0 },
+  { upTo: 10_000_000, discountPct: 8 },
+  { upTo: 100_000_000, discountPct: 15 },
+  { upTo: Infinity, discountPct: 22 },
+];
+
+/**
+ * Bill for `volume` searches at `listRate`, with graduated discounts.
+ * Monotonic: more volume never costs less, so committing more can never lower the bill.
+ */
+export function marginalBill(volume: number, listRate: number): number {
+  let prev = 0;
+  let total = 0;
+  for (const b of BRACKETS) {
+    if (volume <= prev) break;
+    total += (Math.min(volume, b.upTo) - prev) * listRate * (1 - b.discountPct / 100);
+    prev = b.upTo;
+  }
+  return total;
+}
+
 export interface DealQuote {
   committedMonthlyVolume: number;
+  /** The top tier the commitment reaches (its marginal rate). */
   discountPct: number;
+  /** Average discount over all billed volume (what the partner actually gets off list). */
+  blendedDiscountPct: number;
   billedSearches: number;
   listRate: number;
   effectiveRate: number;
@@ -46,13 +72,14 @@ export interface DealQuote {
 export function dealQuote(i: Inputs, listRatePerSearch: number, committedMonthlyVolume: number, cost: SupplierCost): DealQuote {
   const discountPct = discountForCommitment(committedMonthlyVolume);
   const billedSearches = Math.max(i.S, committedMonthlyVolume);
-  const effectiveRate = listRatePerSearch * (1 - discountPct / 100);
   const listBill = i.S * listRatePerSearch;
-  const dealBill = billedSearches * effectiveRate;
+  const dealBill = marginalBill(billedSearches, listRatePerSearch);
+  const effectiveRate = billedSearches > 0 ? dealBill / billedSearches : listRatePerSearch;
   const sc = supplierCost(i, cost);
   return {
     committedMonthlyVolume,
     discountPct,
+    blendedDiscountPct: listRatePerSearch > 0 ? (1 - effectiveRate / listRatePerSearch) * 100 : 0,
     billedSearches,
     listRate: listRatePerSearch,
     effectiveRate,

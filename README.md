@@ -129,15 +129,16 @@ Caching trades cost against freshness. A cached price can change before the trav
 
 A large partner will not pay list price. The question is what to give for what. Here the currency is **committed monthly volume**:
 
-| Committed searches / month | Discount (invented) |
+| Slice of monthly volume | Discount on that slice (invented) |
 |---|---|
-| under 1M | 0% |
-| 1M to under 10M | 8% |
-| 10M to 100M (inclusive) | 15% |
+| first 1M | 0% |
+| 1M to 10M | 8% |
+| 10M to 100M | 15% |
 | above 100M | 22% |
 
+- **Graduated, like income tax.** Each slice of volume gets its own tier's discount; reaching a higher tier discounts only the volume above the threshold. An earlier all-units design (the whole bill drops to the new tier's rate) had a cliff: committing 10M billed less than committing 9.5M. Graduated tiers make the bill rise monotonically with volume, so committing more can never lower it (pinned by a test).
 - **Take-or-pay.** The partner pays for `max(actual, committed)` volume. A discount only makes sense if the commitment is real; the page flags a partner whose usage falls short.
-- **Example.** The fictional bank commits 60M searches a month: 15% off $0.0004 gives $0.00034 a search, **$20,400 instead of $24,000** at list. The platform gives up $3,600 of margin in return for predictable volume. The fictional agency (800k searches, no commitment) pays list.
+- **Example.** The fictional bank commits 60M searches a month: 1M at list + 9M at 8% off + 50M at 15% off is **$20,712 instead of $24,000** at list, a blended 13.7% off ($0.000345 a search). The platform gives up $3,288 of margin in return for predictable volume. The fictional agency (800k searches, no commitment) pays list.
 - **Versioned price books.** Editing a deal never overwrites. It inserts the next version, marks the previous one `superseded`, and writes an audit entry, all in one transaction. An edit based on a stale version, or a concurrent write to the same version, is rejected with a 409 (backed by a unique `{partnerId, version}` index). The discount is always recomputed from the tier table, never taken from the request.
 
 ## Sources

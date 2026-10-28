@@ -29,12 +29,12 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
         subtitle="A large partner trades a volume commitment for a lower rate. Each partner has a versioned price book: an edit never overwrites, it creates the next version and keeps the old one."
       />
       {error ? <div className="mb-3 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-800">{error}</div> : null}
-      <Card title="Discount tiers (invented)" className="mb-4">
+      <Card title="Graduated discount tiers (invented): each slice of volume gets its own rate" className="mb-4">
         <ul className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
           {[
-            ["under 1M", 0],
-            ["1M to under 10M", 8],
-            ["10M to 100M inclusive", 15],
+            ["first 1M", 0],
+            ["1M to 10M", 8],
+            ["10M to 100M", 15],
             ["above 100M", 22],
           ].map(([label, pct]) => (
             <li key={String(label)}>
@@ -56,7 +56,8 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
             </div>
             <dl className="mb-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
               <dt>Committed volume</dt><dd className="text-right tabular-nums">{num(q.committedMonthlyVolume)}</dd>
-              <dt>Discount</dt><dd className="text-right tabular-nums">{q.discountPct}%</dd>
+              <dt>Top tier reached</dt><dd className="text-right tabular-nums">{q.discountPct}%</dd>
+              <dt>Blended discount</dt><dd className="text-right tabular-nums">{q.blendedDiscountPct.toFixed(1)}%</dd>
               <dt>Effective rate</dt><dd className="text-right tabular-nums">{usd(q.effectiveRate, 5)}</dd>
               <dt>Bill at list</dt><dd className="text-right tabular-nums">{usd(q.listBill)}</dd>
               <dt>Bill with deal</dt><dd className="text-right tabular-nums">{usd(q.dealBill)}</dd>

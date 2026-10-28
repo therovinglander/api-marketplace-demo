@@ -4,7 +4,7 @@ import { FileRepo } from "@/lib/repo/file";
 import { auditFor } from "@/lib/repo/audit";
 import { ConflictError } from "@/lib/repo/types";
 import { blendSuppliers, type Inputs } from "@/lib/pricing/calculator";
-import { dealQuote, discountForCommitment } from "@/lib/pricing/deals";
+import { dealQuote, discountForCommitment, marginalBill } from "@/lib/pricing/deals";
 import { activeBook, buildLines, DealValidationError, editPriceBook, listVersions } from "@/lib/pricing/dealsService";
 
 const seedDir = path.join(__dirname, "..", "seed");
@@ -36,14 +36,16 @@ describe("discount tiers", () => {
 });
 
 describe("deal quote", () => {
-  it("bank: 60M committed -> 15% off $0.0004", () => {
+  it("bank: 60M committed -> graduated discount, tier reached is 15%", () => {
     const i: Inputs = { S: 60_000_000, r: 2000, c: 0.85, h: 0.3 };
     const q = dealQuote(i, 0.0004, 60_000_000, cost);
     expect(q.discountPct).toBe(15);
     expect(q.listBill).toBeCloseTo(24000, 6);
-    expect(q.dealBill).toBeCloseTo(20400, 6);
-    expect(q.partnerSavings).toBeCloseTo(3600, 6);
-    expect(q.effectiveRate).toBeCloseTo(0.00034, 9);
+    // 1M at list + 9M at 8% off + 50M at 15% off = 51.78M list-equivalent searches x $0.0004
+    expect(q.dealBill).toBeCloseTo(20712, 6);
+    expect(q.partnerSavings).toBeCloseTo(3288, 6);
+    expect(q.effectiveRate).toBeCloseTo(0.0003452, 9);
+    expect(q.blendedDiscountPct).toBeCloseTo(13.7, 1);
     expect(q.marginWithDeal).toBeLessThan(q.marginAtList);
     expect(q.shortfall).toBe(false);
   });
@@ -58,8 +60,19 @@ describe("deal quote", () => {
     const q = dealQuote(i, 0.0004, 10_000_000, cost);
     expect(q.shortfall).toBe(true);
     expect(q.billedSearches).toBe(10_000_000);
-    expect(q.dealBill).toBeCloseTo(10_000_000 * 0.0004 * 0.85, 6);
+    expect(q.dealBill).toBeCloseTo((1_000_000 + 9_000_000 * 0.92) * 0.0004, 6);
     expect(q.partnerSavings).toBeLessThan(0); // a commitment the partner doesn't use costs them more than list
+  });
+  it("no cliff: committing more never lowers the bill (the old all-units 9.5M vs 10M case)", () => {
+    const at = (v: number) => dealQuote({ S: 9_500_000, r: 1000, c: 0.85, h: 0.3 }, 0.0004, v, cost).dealBill;
+    expect(at(10_000_000)).toBeGreaterThan(at(9_500_000));
+    expect(at(100_000_001)).toBeGreaterThan(at(100_000_000));
+  });
+  it("marginalBill is monotonic across every tier boundary", () => {
+    const edges = [0, 999_999, 1_000_000, 1_000_001, 9_999_999, 10_000_000, 10_000_001, 100_000_000, 100_000_001, 500_000_000];
+    const bills = edges.map((v) => marginalBill(v, 0.0004));
+    for (let k = 1; k < bills.length; k++) expect(bills[k]).toBeGreaterThanOrEqual(bills[k - 1]);
+    expect(marginalBill(0, 0.0004)).toBe(0);
   });
 });
 
