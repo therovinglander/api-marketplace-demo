@@ -68,6 +68,12 @@ describe("deal quote", () => {
     expect(at(10_000_000)).toBeGreaterThan(at(9_500_000));
     expect(at(100_000_001)).toBeGreaterThan(at(100_000_000));
   });
+  it("m11: no commitment means no discount, however large the actual volume", () => {
+    const q = dealQuote({ S: 60_000_000, r: 2000, c: 0.85, h: 0.3 }, 0.0004, 0, cost);
+    expect(q.dealBill).toBeCloseTo(24000, 6);
+    expect(q.partnerSavings).toBeCloseTo(0, 9);
+    expect(q.blendedDiscountPct).toBeCloseTo(0, 9);
+  });
   it("marginalBill is monotonic across every tier boundary", () => {
     const edges = [0, 999_999, 1_000_000, 1_000_001, 9_999_999, 10_000_000, 10_000_001, 100_000_000, 100_000_001, 500_000_000];
     const bills = edges.map((v) => marginalBill(v, 0.0004));

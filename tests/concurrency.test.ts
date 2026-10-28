@@ -82,6 +82,17 @@ describe("FileRepo transactions are isolated (real concurrency)", () => {
     expect((await r.find("canonical_hotels")).filter((c) => (c.memberIds as string[]).length > 0)).toHaveLength(0);
   });
 
+  it("m12: two concurrent generateProposals runs both succeed (no duplicate _id 500); data stays consistent", async () => {
+    const r = repo();
+    const [a, b] = await Promise.allSettled([generateProposals(r), generateProposals(r)]);
+    expect(a.status).toBe("fulfilled");
+    expect(b.status).toBe("fulfilled");
+    const proposals = await r.find("match_proposals");
+    const audits = (await r.find("audit_log")).filter((x) => x.action === "proposed");
+    expect(proposals.length).toBe(audits.length);
+    expect(new Set(proposals.map((p) => p._id)).size).toBe(proposals.length);
+  });
+
   it("a nested transact inside a transaction does not deadlock", async () => {
     const r = repo();
     const out = await r.transact(async (tx) => tx.transact(async () => 42));

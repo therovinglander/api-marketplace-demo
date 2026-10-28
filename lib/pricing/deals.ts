@@ -73,7 +73,7 @@ export function dealQuote(i: Inputs, listRatePerSearch: number, committedMonthly
   const discountPct = discountForCommitment(committedMonthlyVolume);
   const billedSearches = Math.max(i.S, committedMonthlyVolume);
   const listBill = i.S * listRatePerSearch;
-  const dealBill = marginalBill(billedSearches, listRatePerSearch);
+  const dealBill = committedMonthlyVolume > 0 ? marginalBill(billedSearches, listRatePerSearch) : listBill;
   const effectiveRate = billedSearches > 0 ? dealBill / billedSearches : listRatePerSearch;
   const sc = supplierCost(i, cost);
   return {

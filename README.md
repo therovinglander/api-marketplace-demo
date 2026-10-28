@@ -98,7 +98,7 @@ Now let the partner browse more: `r = 5,000`.
 
 - Per-search cost per confirmed booking: `$0.0004 x 5,000 / 0.85` = **$2.35** (was $0.47).
 - Per-booking price: still **$0.65**.
-- Hybrid at `r = 2,000`: 5M x (1 - 1,500 x 0.85 / 2,000) = 1,812,500 excess searches x $0.005 = $9,062.50 on top of $3,000, so **$12,062.50**. The excess fee is the lever that stops browsing-heavy partners being cheap to serve and costly to host.
+- Hybrid at `r = 5,000`: 5M x (1 - 1,500 x 0.85 / 5,000) = 3,725,000 excess searches x $0.005 = $18,625.00 on top of $3,000, so **$21,625.00**. The excess fee is the lever that stops browsing-heavy partners being cheap to serve and costly to host.
 
 The same arithmetic is pinned in `tests/pricing.test.ts`.
 
@@ -154,8 +154,8 @@ const booking = await client.book({ rateKey: quote.rateKey, guestName: "Test Gue
 ```
 
 - **Sandbox.** `POST /api/v1/sandbox/{search|book|content-mapping|room-mapping|dedupe|pricing|taxes}` with `Authorization: Bearer sbx_...`. Responses are deterministic stand-ins (same input, same output) and labelled illustrative. Keys come from `POST /api/v1/onboarding/signup`; only the SHA-256 of a key is stored, and the plaintext is shown once.
-- **Retry policy.** The SDK retries up to 3 times (4 calls in total) on HTTP 429, any 5xx, and network errors, with exponential backoff from 200 ms plus jitter. It never retries other 4xx responses. Errors are typed: `AuthError` (401/403), `ValidationError` (other 4xx), `RateLimitError` (429), `UpstreamError` (5xx or network), all extending `MarketplaceError`.
-- **Idempotency.** `book` always sends an `Idempotency-Key` and reuses the same key across retries, so a retry after a timeout cannot double-book. Repeating a key with the same body returns the stored response with an `Idempotent-Replayed: true` header; repeating it with a **different body returns 422 `idempotency_key_reused`** (compared by a SHA-256 of the canonical, key-order-independent body), so a key can never silently return someone else's booking. The store is **in memory and resets when the server restarts**, and it is bounded (5,000 entries), so this is a demo of the contract, not a durable guarantee.
+- **Retry policy.** The SDK retries up to 3 times (4 calls in total) on HTTP 429, any 5xx, and network errors, with exponential backoff from 200 ms plus jitter. It never retries other 4xx responses. Errors are typed: `AuthError` (401/403), `ValidationError` (other 4xx), `RateLimitError` (429), `UpstreamError` (5xx or network), all extending `MarketplaceError`. Known limit: there is no per-attempt timeout and `Retry-After` is ignored; production would add `AbortSignal.timeout` per attempt and honour `Retry-After`, capped.
+- **Idempotency.** `book` always sends an `Idempotency-Key` and reuses the same key across retries, so a retry after a lost response or a 5xx cannot double-book. Repeating a key with the same body returns the stored response with an `Idempotent-Replayed: true` header; repeating it with a **different body returns 422 `idempotency_key_reused`** (compared by a SHA-256 of the canonical, key-order-independent body), so a key can never silently return someone else's booking. The store is **in memory and resets when the server restarts**, and it is bounded (5,000 entries), so this is a demo of the contract, not a durable guarantee.
 - **Simulating failures.** Send `X-Sandbox-Simulate: 429|500|502|503` to force that failure and watch the SDK retry.
 - **Time-to-first-call** is the onboarding metric: seconds from signup to the first successful authenticated call, recorded once per session and shown on `/onboarding` and at `GET /api/v1/onboarding/{sessionId}`. A partner team watches it because every minute between "key issued" and "first 200" is where integrations stall.
 

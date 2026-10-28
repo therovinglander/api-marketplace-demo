@@ -29,8 +29,8 @@ export async function generateProposals(repo: Repo, now: Date = new Date()): Pro
 
   for (const p of proposals) {
     const id = proposalId(p.aId, p.bId);
-    const existing = await repo.findOne("match_proposals", { _id: id });
-    if (existing && existing.status !== "proposed") {
+    const decided = await repo.findOne("match_proposals", { _id: id });
+    if (decided && decided.status !== "proposed") {
       summary.skippedDecided++;
       continue;
     }
@@ -47,34 +47,37 @@ export async function generateProposals(repo: Repo, now: Date = new Date()): Pro
       status: "proposed",
       illustrative: true,
     };
-    if (existing) {
-      await repo.upsert("match_proposals", { ...existing, ...doc });
-      summary.refreshed++;
-    } else {
-      await repo.transact(async (tx) => {
-        await tx.insert("match_proposals", doc);
-        await appendAudit(
-          tx,
-          {
-            entity: "match_proposal",
-            entityId: id,
-            action: "proposed",
-            actor: "system",
-            reason: p.result.reason,
-            details: {
-              signals: p.result.signals,
-              weights: p.result.weights,
-              thresholds: { strong: cfg.strong, review: cfg.review },
-              ruleVersion: cfg.ruleVersion,
-              phoneReweighted: p.result.phoneReweighted,
-              distanceMeters: p.result.distanceMeters,
-            },
+    // m12: the existence check happens inside the transaction, so concurrent runs
+    // serialise and the loser refreshes instead of racing the insert (duplicate _id -> 500).
+    await repo.transact(async (tx) => {
+      const existing = await tx.findOne("match_proposals", { _id: id });
+      if (existing) {
+        await tx.upsert("match_proposals", { ...existing, ...doc });
+        summary.refreshed++;
+        return;
+      }
+      await tx.insert("match_proposals", doc);
+      await appendAudit(
+        tx,
+        {
+          entity: "match_proposal",
+          entityId: id,
+          action: "proposed",
+          actor: "system",
+          reason: p.result.reason,
+          details: {
+            signals: p.result.signals,
+            weights: p.result.weights,
+            thresholds: { strong: cfg.strong, review: cfg.review },
+            ruleVersion: cfg.ruleVersion,
+            phoneReweighted: p.result.phoneReweighted,
+            distanceMeters: p.result.distanceMeters,
           },
-          now,
-        );
-      });
+        },
+        now,
+      );
       summary.created++;
-    }
+    });
   }
   return summary;
 }
