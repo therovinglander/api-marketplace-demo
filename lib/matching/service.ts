@@ -1,6 +1,6 @@
 // Persistence for dedupe: proposal generation (idempotent) and human approve/reject (transactional, audited).
 import { appendAudit } from "@/lib/repo/audit";
-import type { Doc, Repo } from "@/lib/repo/types";
+import { ConflictError, type Doc, type Repo } from "@/lib/repo/types";
 import { DEFAULT_MATCHING, proposePairs, type HotelRecord, type MatchingConfig } from "./score";
 
 export const proposalId = (aId: string, bId: string) => `mp_${aId}__${bId}`;
@@ -96,6 +96,14 @@ export class NotFoundError extends Error {
   }
 }
 
+/** Opposite decision on an already-decided proposal (HTTP 409). */
+export class DecisionConflictError extends ConflictError {
+  constructor(message: string) {
+    super(message);
+    this.name = "DecisionConflictError";
+  }
+}
+
 /** One transaction: proposal status + canonical union + audit entry. A repeat decision is a no-op. */
 export async function decideProposal(
   repo: Repo,
@@ -109,6 +117,11 @@ export async function decideProposal(
     const proposal = await tx.findOne("match_proposals", { _id: id });
     if (!proposal) throw new NotFoundError(`proposal ${id} not found`);
     if (proposal.status !== "proposed") {
+      const recorded = proposal.status === "approved" ? "approve" : "reject";
+      if (recorded !== decision) {
+        // D7: a decided proposal is final. Refuse the opposite decision instead of flipping or silently ignoring it.
+        throw new DecisionConflictError(`proposal ${id} is already ${String(proposal.status)}; it cannot be ${decision === "approve" ? "approved" : "rejected"}`);
+      }
       return { proposalId: id, status: proposal.status as "approved" | "rejected", alreadyDecided: true, canonicalId: undefined };
     }
     const aId = String(proposal.aId);

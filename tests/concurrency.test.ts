@@ -3,7 +3,7 @@ import path from "node:path";
 import { FileRepo } from "@/lib/repo/file";
 import { ConflictError } from "@/lib/repo/types";
 import { editPriceBook, listVersions } from "@/lib/pricing/dealsService";
-import { decideProposal, generateProposals, type DecisionResult } from "@/lib/matching/service";
+import { decideProposal, DecisionConflictError, generateProposals } from "@/lib/matching/service";
 
 const seedDir = path.join(__dirname, "..", "seed");
 const repo = () => new FileRepo({ seedDir });
@@ -44,7 +44,7 @@ describe("FileRepo transactions are isolated (real concurrency)", () => {
     expect((await r.find("audit_log")).filter((a) => a.entityId === id && a.action === "approved")).toHaveLength(1);
   });
 
-  it("concurrent approve vs reject: exactly one wins and the audit log agrees with the row", async () => {
+  it("concurrent approve vs reject: exactly one wins, the loser is refused (409), and the audit log agrees with the row", async () => {
     const r = repo();
     const id = await firstProposal(r);
     const res = await Promise.allSettled([
@@ -54,11 +54,32 @@ describe("FileRepo transactions are isolated (real concurrency)", () => {
     const final = (await r.findOne("match_proposals", { _id: id }))!;
     const decisions = (await r.find("audit_log")).filter((a) => a.entityId === id && (a.action === "approved" || a.action === "rejected"));
     expect(decisions).toHaveLength(1);
-    const wanted = final.status === "approved" ? "approved" : "rejected";
-    expect(decisions[0].action).toBe(wanted);
-    // the loser (if it reported at all) must have been refused, never reported as a second decision
-    const fulfilled = res.filter((x): x is PromiseFulfilledResult<DecisionResult> => x.status === "fulfilled");
-    expect(fulfilled.filter((x) => !x.value.alreadyDecided)).toHaveLength(1);
+    expect(decisions[0].action).toBe(final.status === "approved" ? "approved" : "rejected");
+    expect(res.filter((x) => x.status === "fulfilled")).toHaveLength(1);
+    const lost = res.filter((x): x is PromiseRejectedResult => x.status === "rejected");
+    expect(lost).toHaveLength(1);
+    expect(lost[0].reason).toBeInstanceOf(DecisionConflictError);
+  });
+
+  it("D7: reject after approve is refused with DecisionConflictError and changes nothing; the same decision stays a no-op", async () => {
+    const r = repo();
+    const id = await firstProposal(r);
+    await decideProposal(r, id, "approve", "a", undefined);
+    const auditBefore = (await r.find("audit_log")).length;
+    await expect(decideProposal(r, id, "reject", "b", undefined)).rejects.toBeInstanceOf(DecisionConflictError);
+    await expect(decideProposal(r, id, "reject", "b", undefined)).rejects.toBeInstanceOf(ConflictError);
+    expect((await r.findOne("match_proposals", { _id: id }))?.status).toBe("approved");
+    const same = await decideProposal(r, id, "approve", "c", undefined);
+    expect(same.alreadyDecided).toBe(true);
+    expect((await r.find("audit_log")).length).toBe(auditBefore);
+  });
+
+  it("approve after reject is refused too", async () => {
+    const r = repo();
+    const id = await firstProposal(r);
+    await decideProposal(r, id, "reject", "a", undefined);
+    await expect(decideProposal(r, id, "approve", "b", undefined)).rejects.toBeInstanceOf(DecisionConflictError);
+    expect((await r.find("canonical_hotels")).filter((c) => (c.memberIds as string[]).length > 0)).toHaveLength(0);
   });
 
   it("a nested transact inside a transaction does not deadlock", async () => {

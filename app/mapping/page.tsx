@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getRepo, type Doc } from "@/lib/repo";
 import { Badge, Card, PageTitle } from "@/components/ui";
-import { decideAction, generateAction } from "./actions";
+import { generateAction } from "./actions";
+import { DecisionForm } from "@/components/DecisionForm";
+import { SubmitButton } from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +58,7 @@ export default async function MappingPage() {
       />
       <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
         <form action={generateAction}>
-          <button className="rounded bg-teal-700 px-3 py-1.5 text-white hover:bg-teal-800">Generate proposals</button>
+          <SubmitButton label="Generate proposals" />
         </form>
         <span className="text-stone-600">
           {records.length} records · {open.length} to review · {decided.length} decided · {live.length} canonical hotels
@@ -89,12 +91,7 @@ export default async function MappingPage() {
                 <Signal label="phone" v={s.phone} w={w.phone} />
               </div>
               <p className="mb-2 text-xs text-stone-600">Why: {String(p.reason)}</p>
-              <form action={decideAction} className="flex flex-wrap items-center gap-2 text-sm">
-                <input type="hidden" name="id" value={String(p._id)} />
-                <input name="note" placeholder="Note (becomes the audit reason)" className="min-w-48 flex-1 rounded border border-stone-300 px-2 py-1" />
-                <button name="decision" value="approve" className="rounded bg-teal-700 px-3 py-1 text-white hover:bg-teal-800">Approve</button>
-                <button name="decision" value="reject" className="rounded bg-stone-200 px-3 py-1 hover:bg-stone-300">Reject</button>
-              </form>
+              <DecisionForm id={String(p._id)} />
             </Card>
           );
         })}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getRepo } from "@/lib/repo";
 import { decideProposal, NotFoundError } from "@/lib/matching/service";
+import { ConflictError } from "@/lib/repo/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     return NextResponse.json({ illustrative: true, ...result });
   } catch (e) {
     if (e instanceof NotFoundError) return NextResponse.json({ error: e.message }, { status: 404 });
+    if (e instanceof ConflictError) return NextResponse.json({ error: e.message }, { status: 409 });
     throw e;
   }
 }
