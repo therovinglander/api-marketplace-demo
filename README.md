@@ -40,6 +40,7 @@ The Mongo adapter (`lib/repo/mongo.ts`) is written against the same interface as
 | `/calculator` | 1. Cost-per-booking calculator, 2. Excess-search tiers | Four ways to charge, side by side, with break-even volumes and per-capability excess fees |
 | `/mapping` | 4. Dedupe / property mapping | Duplicate hotel records across three suppliers, a match score and merge proposal, human approve/reject |
 | `/mapping/audit` | 4. Audit log | Append-only log of why each match was proposed and decided |
+| `/cache` | 3. Cache toggle | Hit rate and cache lifetime sliders: supplier cost saved versus expected failed checkouts |
 
 ## Product decisions (plain language)
 
@@ -112,6 +113,16 @@ The same hotel shows up under several supplier codes with messy data: abbreviati
 
 Weights and thresholds are invented starting points, not tuned on real data.
 
+## Cache toggle
+
+Caching trades cost against freshness. A cached price can change before the traveller checks out, and a "price changed at checkout" failure costs real money and trust.
+
+- `stale rate = min(12%, 0.0015 x lifetime in minutes x (1 + 2 x hit rate))`. Higher hit rates mean more of the traffic rides on old prices, so staleness grows with both knobs. The shape and every number are **invented**.
+- Expected failed checkouts = confirmed bookings x stale rate, each costed at an invented $4.00.
+- Savings = searches served from cache x the blended supplier cost per search.
+- Worked example (defaults, 10-minute lifetime): stale rate 2.4%, so 102 failed checkouts a month, **$408**. The cache saves 1.5M upstream searches, worth **$198** at $0.000132 each. **Net: -$210.** At invented, very cheap upstream prices the cache does not pay for itself on call cost alone; the page shows the supplier price per search above which it would. The honest reading is that the case for caching rests on speed and on avoiding supplier excess-search fees, which this model does not capture.
+- The hit-rate slider carries a warning above 70%, because "up to ~70% of upstream calls" is a vendor claim.
+
 ## Sources
 
 Public pages read 2026-10-28. Secondary sources, mostly vendor pages: treat figures as **vendor claims** and ranges, not facts.
@@ -150,7 +161,7 @@ Default rates borrow the *shape* of the public excess-fee examples. The numbers 
 ```
 app/            Next.js pages and API routes (app/api/v1/*)
 components/     small shadcn-style UI primitives and the calculator
-lib/pricing/    calculator, excess tiers (pure)
+lib/pricing/    calculator, excess tiers, cache model (pure)
 lib/matching/   text helpers, scoring, blocking, proposal service
 lib/repo/       repository interface with file and mongo implementations, audit log
 public/openapi/ one OpenAPI spec per capability
