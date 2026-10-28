@@ -42,6 +42,7 @@ The Mongo adapter (`lib/repo/mongo.ts`) is written against the same interface as
 | `/mapping/audit` | 4. Audit log | Append-only log of why each match was proposed and decided |
 | `/cache` | 3. Cache toggle | Hit rate and cache lifetime sliders: supplier cost saved versus expected failed checkouts |
 | `/deals` | 5. Custom deals | Committed-volume discounts for a large bank versus a small agency; versioned price books |
+| `/onboarding` | 6. SDK, sandbox, onboarding | Sign up, get a sandbox key, make a first call with the SDK, see time-to-first-call |
 
 ## Product decisions (plain language)
 
