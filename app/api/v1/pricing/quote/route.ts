@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
 import { allBreakEvens, compareModels, confirmedBookings, effectiveL2B, validateInputs, supplierCost } from "@/lib/pricing/calculator";
 import { loadPricingContext, plansFor, type Segment } from "@/lib/pricing/load";
@@ -10,12 +11,8 @@ const SEGMENTS: Segment[] = ["agency", "ota", "bank"];
 
 /** POST { S, r, c, h, segment } -> model comparison, break-evens and per-capability excess tiers. Illustrative. */
 export async function POST(req: Request) {
-  let body: Record<string, unknown>;
-  try {
-    body = (await req.json()) as Record<string, unknown>;
-  } catch {
-    return NextResponse.json({ error: "body must be JSON" }, { status: 400 });
-  }
+  const body = await readJsonObject(req);
+  if (!body) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
   const errors = validateInputs(body);
   const segment = (body.segment ?? "agency") as Segment;
   if (!SEGMENTS.includes(segment)) errors.push(`segment must be one of ${SEGMENTS.join(", ")}`);

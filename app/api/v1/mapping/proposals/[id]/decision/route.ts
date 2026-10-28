@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
 import { decideProposal, NotFoundError } from "@/lib/matching/service";
 import { ConflictError } from "@/lib/repo/types";
@@ -9,11 +10,9 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   let body: { decision?: unknown; note?: unknown };
-  try {
-    body = (await req.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "body must be JSON" }, { status: 400 });
-  }
+  const parsed = await readJsonObject(req);
+  if (!parsed) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
+  body = parsed as typeof body;
   if (body.decision !== "approve" && body.decision !== "reject") {
     return NextResponse.json({ error: 'decision must be "approve" or "reject"' }, { status: 400 });
   }

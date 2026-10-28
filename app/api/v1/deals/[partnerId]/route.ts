@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
 import { ConflictError } from "@/lib/repo/types";
 import { DealValidationError, editPriceBook, listVersions } from "@/lib/pricing/dealsService";
@@ -17,11 +18,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ partnerId: str
 export async function POST(req: Request, ctx: { params: Promise<{ partnerId: string }> }) {
   const { partnerId } = await ctx.params;
   let body: { baseVersion?: unknown; committedMonthlyVolume?: unknown; note?: unknown };
-  try {
-    body = (await req.json()) as typeof body;
-  } catch {
-    return NextResponse.json({ error: "body must be JSON" }, { status: 400 });
-  }
+  const parsed = await readJsonObject(req);
+  if (!parsed) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
+  body = parsed as typeof body;
   if (typeof body.baseVersion !== "number" || typeof body.committedMonthlyVolume !== "number") {
     return NextResponse.json({ error: "baseVersion and committedMonthlyVolume must be numbers" }, { status: 400 });
   }

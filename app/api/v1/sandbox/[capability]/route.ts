@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
 import { authenticate, recordFirstCall } from "@/lib/onboarding";
 import { executeSandbox, IdempotencyStore, SANDBOX_CAPABILITIES, type SandboxCapability } from "@/lib/sandbox";
@@ -28,15 +29,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ capability: st
   const simulate = Number(req.headers.get("x-sandbox-simulate"));
   if (SIMULATE.has(simulate)) return NextResponse.json({ error: `simulated ${simulate}` }, { status: simulate });
 
-  let body: Record<string, unknown>;
-  try {
-    body = (await req.json()) as Record<string, unknown>;
-  } catch {
-    return NextResponse.json({ error: "body must be JSON" }, { status: 400 });
-  }
-  if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
-  }
+  const parsed = await readJsonObject(req);
+  if (!parsed) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
+  const body = parsed;
 
   const key = req.headers.get("idempotency-key");
   const result = executeSandbox(capability as SandboxCapability, body, key, idem(), session._id);
