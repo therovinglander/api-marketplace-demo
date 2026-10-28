@@ -41,6 +41,7 @@ The Mongo adapter (`lib/repo/mongo.ts`) is written against the same interface as
 | `/mapping` | 4. Dedupe / property mapping | Duplicate hotel records across three suppliers, a match score and merge proposal, human approve/reject |
 | `/mapping/audit` | 4. Audit log | Append-only log of why each match was proposed and decided |
 | `/cache` | 3. Cache toggle | Hit rate and cache lifetime sliders: supplier cost saved versus expected failed checkouts |
+| `/deals` | 5. Custom deals | Committed-volume discounts for a large bank versus a small agency; versioned price books |
 
 ## Product decisions (plain language)
 
@@ -122,6 +123,21 @@ Caching trades cost against freshness. A cached price can change before the trav
 - Savings = searches served from cache x the blended supplier cost per search.
 - Worked example (defaults, 10-minute lifetime): stale rate 2.4%, so 102 failed checkouts a month, **$408**. The cache saves 1.5M upstream searches, worth **$198** at $0.000132 each. **Net: -$210.** At invented, very cheap upstream prices the cache does not pay for itself on call cost alone; the page shows the supplier price per search above which it would. The honest reading is that the case for caching rests on speed and on avoiding supplier excess-search fees, which this model does not capture.
 - The hit-rate slider carries a warning above 70%, because "up to ~70% of upstream calls" is a vendor claim.
+
+## Custom deals
+
+A large partner will not pay list price. The question is what to give for what. Here the currency is **committed monthly volume**:
+
+| Committed searches / month | Discount (invented) |
+|---|---|
+| under 1M | 0% |
+| 1M to under 10M | 8% |
+| 10M to 100M (inclusive) | 15% |
+| above 100M | 22% |
+
+- **Take-or-pay.** The partner pays for `max(actual, committed)` volume. A discount only makes sense if the commitment is real; the page flags a partner whose usage falls short.
+- **Example.** The fictional bank commits 60M searches a month: 15% off $0.0004 gives $0.00034 a search, **$20,400 instead of $24,000** at list. The platform gives up $3,600 of margin in return for predictable volume. The fictional agency (800k searches, no commitment) pays list.
+- **Versioned price books.** Editing a deal never overwrites. It inserts the next version, marks the previous one `superseded`, and writes an audit entry, all in one transaction. An edit based on a stale version, or a concurrent write to the same version, is rejected with a 409 (backed by a unique `{partnerId, version}` index). The discount is always recomputed from the tier table, never taken from the request.
 
 ## Sources
 

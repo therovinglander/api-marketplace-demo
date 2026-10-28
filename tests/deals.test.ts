@@ -1,0 +1,115 @@
+import { describe, expect, it } from "vitest";
+import path from "node:path";
+import { FileRepo } from "@/lib/repo/file";
+import { auditFor } from "@/lib/repo/audit";
+import { ConflictError } from "@/lib/repo/types";
+import { blendSuppliers, type Inputs } from "@/lib/pricing/calculator";
+import { dealQuote, discountForCommitment } from "@/lib/pricing/deals";
+import { activeBook, buildLines, DealValidationError, editPriceBook, listVersions } from "@/lib/pricing/dealsService";
+
+const seedDir = path.join(__dirname, "..", "seed");
+const repo = () => new FileRepo({ seedDir });
+const cost = blendSuppliers([
+  { costPerSearch: 0.00012, costPerBooking: 0.2, weight: 0.5 },
+  { costPerSearch: 0.00018, costPerBooking: 0.28, weight: 0.3 },
+  { costPerSearch: 0.00009, costPerBooking: 0.15, weight: 0.2 },
+]);
+
+describe("discount tiers", () => {
+  it.each([
+    [0, 0],
+    [999_999, 0],
+    [1_000_000, 8],
+    [9_999_999, 8],
+    [10_000_000, 15],
+    [60_000_000, 15],
+    [100_000_000, 15],
+    [100_000_001, 22],
+    [500_000_000, 22],
+  ])("committed %i -> %i%%", (v, pct) => {
+    expect(discountForCommitment(v)).toBe(pct);
+  });
+  it("rejects negative / non-finite", () => {
+    expect(() => discountForCommitment(-1)).toThrow(RangeError);
+    expect(() => discountForCommitment(Number.NaN)).toThrow(RangeError);
+  });
+});
+
+describe("deal quote", () => {
+  it("bank: 60M committed -> 15% off $0.0004", () => {
+    const i: Inputs = { S: 60_000_000, r: 2000, c: 0.85, h: 0.3 };
+    const q = dealQuote(i, 0.0004, 60_000_000, cost);
+    expect(q.discountPct).toBe(15);
+    expect(q.listBill).toBeCloseTo(24000, 6);
+    expect(q.dealBill).toBeCloseTo(20400, 6);
+    expect(q.partnerSavings).toBeCloseTo(3600, 6);
+    expect(q.effectiveRate).toBeCloseTo(0.00034, 9);
+    expect(q.marginWithDeal).toBeLessThan(q.marginAtList);
+    expect(q.shortfall).toBe(false);
+  });
+  it("agency: no commitment -> no discount, list price", () => {
+    const i: Inputs = { S: 800_000, r: 1000, c: 0.85, h: 0.3 };
+    const q = dealQuote(i, 0.0004, 0, cost);
+    expect(q.discountPct).toBe(0);
+    expect(q.dealBill).toBeCloseTo(q.listBill, 9);
+  });
+  it("take-or-pay: below the commitment the partner still pays for the committed volume", () => {
+    const i: Inputs = { S: 5_000_000, r: 1000, c: 0.85, h: 0.3 };
+    const q = dealQuote(i, 0.0004, 10_000_000, cost);
+    expect(q.shortfall).toBe(true);
+    expect(q.billedSearches).toBe(10_000_000);
+    expect(q.dealBill).toBeCloseTo(10_000_000 * 0.0004 * 0.85, 6);
+    expect(q.partnerSavings).toBeLessThan(0); // a commitment the partner doesn't use costs them more than list
+  });
+});
+
+describe("price book versioning", () => {
+  it("seed: agency and bank each start at v1 active", async () => {
+    const r = repo();
+    expect((await activeBook(r, "p_bank"))?.version).toBe(1);
+    expect((await activeBook(r, "p_agency"))?.version).toBe(1);
+  });
+
+  it("edit creates v2, v1 becomes superseded, one audit entry", async () => {
+    const r = repo();
+    const v2 = await editPriceBook(r, "p_bank", 1, 120_000_000, "tester", undefined);
+    expect(v2.version).toBe(2);
+    expect(v2.supersedes).toBe("pb_p_bank_v1");
+    const versions = await listVersions(r, "p_bank");
+    expect(versions.map((v) => [v.version, v.status])).toEqual([[2, "active"], [1, "superseded"]]);
+    expect((v2.lines as { discountPct: number }[])[0].discountPct).toBe(22);
+    const audit = (await r.find("audit_log")).filter((a) => a.action === "pricebook_versioned");
+    expect(audit).toHaveLength(1);
+    expect((await auditFor(r, "price_book", "pb_p_bank_v2"))).toHaveLength(1);
+  });
+
+  it("concurrent edit on the same base version -> ConflictError (HTTP 409); only one v2 exists", async () => {
+    const r = repo();
+    await editPriceBook(r, "p_bank", 1, 120_000_000, "a", undefined);
+    await expect(editPriceBook(r, "p_bank", 1, 1_000_000, "b", undefined)).rejects.toBeInstanceOf(ConflictError);
+    expect((await listVersions(r, "p_bank")).length).toBe(2);
+  });
+
+  it("the unique {partnerId, version} index backstops a raw duplicate insert", async () => {
+    const r = repo();
+    await expect(r.insert("price_books", { _id: "x", partnerId: "p_bank", version: 1 })).rejects.toBeInstanceOf(ConflictError);
+  });
+
+  it("a failed edit leaves nothing behind (no new version, no audit)", async () => {
+    const r = repo();
+    await expect(editPriceBook(r, "p_bank", 7, 1_000_000, "a", undefined)).rejects.toBeInstanceOf(ConflictError);
+    expect((await listVersions(r, "p_bank")).length).toBe(1);
+    expect((await r.find("audit_log")).length).toBe(0);
+  });
+
+  it("ignores any client-supplied discount: it is recomputed from the tier", () => {
+    expect(buildLines(10_000_000)[0].discountPct).toBe(15);
+  });
+
+  it("validates input and partner", async () => {
+    const r = repo();
+    expect(() => buildLines(-5)).toThrow(DealValidationError);
+    expect(() => buildLines(Number.NaN)).toThrow(DealValidationError);
+    await expect(editPriceBook(r, "p_nobody", 0, 1, "a", undefined)).rejects.toBeInstanceOf(DealValidationError);
+  });
+});
