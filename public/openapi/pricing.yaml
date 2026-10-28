@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: Pricing (fictional sandbox API)
+  version: "0.1.0"
+  description: ILLUSTRATIVE. Fictional company, invented data. Final bookable price for a rate key. Always fresh (not cached), so it carries the tightest look-to-book allowance.
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /pricing:
+    post:
+      summary: Re-price a rate key
+      operationId: pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hotelId, rateKey]
+              properties:
+                hotelId: { type: string, example: H-1001 }
+                rateKey: { type: string, example: rk_demo }
+      responses:
+        "200": { description: Deterministic sandbox result }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }

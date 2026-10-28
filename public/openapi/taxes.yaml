@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: Taxes & Fees (fictional sandbox API)
+  version: "0.1.0"
+  description: ILLUSTRATIVE. Fictional company, invented data. Estimated taxes and mandatory fees per stay. Billed per booking.
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /taxes:
+    post:
+      summary: Estimate taxes and fees
+      operationId: taxes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hotelId, nights]
+              properties:
+                hotelId: { type: string, example: H-1001 }
+                nights: { type: integer, minimum: 1, example: 2 }
+      responses:
+        "200": { description: Deterministic sandbox result }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }

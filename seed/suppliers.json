@@ -5,6 +5,7 @@
     "costPerSearch": 0.00012,
     "costPerBooking": 0.2,
     "latencyMs": 180,
+    "weight": 0.5,
     "illustrative": true
   },
   {
@@ -13,6 +14,7 @@
     "costPerSearch": 0.00018,
     "costPerBooking": 0.28,
     "latencyMs": 240,
+    "weight": 0.3,
     "illustrative": true
   },
   {
@@ -21,6 +23,7 @@
     "costPerSearch": 0.00009,
     "costPerBooking": 0.15,
     "latencyMs": 320,
+    "weight": 0.2,
     "illustrative": true
   }
 ]

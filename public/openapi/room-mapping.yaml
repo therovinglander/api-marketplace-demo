@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Room Mapping (fictional sandbox API)
+  version: "0.1.0"
+  description: ILLUSTRATIVE. Fictional company, invented data. Match a supplier room name to a canonical room type. Harder than property mapping because room names are free text.
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /room-mapping:
+    post:
+      summary: Map a supplier room name
+      operationId: roomMapping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roomName]
+              properties:
+                roomName: { type: string, example: Deluxe King City View }
+      responses:
+        "200": { description: Deterministic sandbox result }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }

@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: Search (fictional sandbox API)
+  version: "0.1.0"
+  description: >
+    ILLUSTRATIVE. Fictional company, invented data. Availability and rates across connected suppliers.
+    Billed per search; look-to-book allowance and excess fee apply (see the calculator).
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /search:
+    post:
+      summary: Search availability
+      operationId: search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [hotelId, checkIn, nights]
+              properties:
+                hotelId: { type: string, example: H-1001 }
+                checkIn: { type: string, format: date, example: "2027-03-01" }
+                nights: { type: integer, minimum: 1, example: 2 }
+      responses:
+        "200":
+          description: Deterministic sandbox result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rateKey: { type: string, example: rk_demo }
+                  totalUsd: { type: number, example: 412.5 }
+                  illustrative: { type: boolean }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+        "429": { description: Rate limited (retry with backoff) }
+  /book:
+    post:
+      summary: Book a rate (idempotent)
+      operationId: book
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string }
+          description: Repeating a request with the same key returns the identical response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rateKey, guestName]
+              properties:
+                rateKey: { type: string, example: rk_demo }
+                guestName: { type: string, example: Test Guest }
+      responses:
+        "200": { description: Booking confirmed (sandbox) }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }

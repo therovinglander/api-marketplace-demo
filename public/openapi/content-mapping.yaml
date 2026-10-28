@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: Content & Property Mapping (fictional sandbox API)
+  version: "0.1.0"
+  description: ILLUSTRATIVE. Fictional company, invented data. Crosswalk between supplier hotel codes and one canonical property.
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /content-mapping:
+    post:
+      summary: Resolve a supplier hotel code to its canonical property
+      operationId: contentMapping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [supplierCode, supplierHotelId]
+              properties:
+                supplierCode: { type: string, example: SUP_A }
+                supplierHotelId: { type: string, example: A-0001 }
+      responses:
+        "200": { description: Deterministic sandbox result }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }

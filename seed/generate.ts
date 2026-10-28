@@ -18,9 +18,9 @@ const ill = { illustrative: true };
 
 // ---- suppliers, capabilities, plans, partners, config ----
 const suppliers = [
-  { _id: "SUP_A", name: "Fictional Supplier A", costPerSearch: 0.00012, costPerBooking: 0.2, latencyMs: 180 },
-  { _id: "SUP_B", name: "Fictional Supplier B", costPerSearch: 0.00018, costPerBooking: 0.28, latencyMs: 240 },
-  { _id: "SUP_C", name: "Fictional Supplier C", costPerSearch: 0.00009, costPerBooking: 0.15, latencyMs: 320 },
+  { _id: "SUP_A", name: "Fictional Supplier A", costPerSearch: 0.00012, costPerBooking: 0.2, latencyMs: 180, weight: 0.5 },
+  { _id: "SUP_B", name: "Fictional Supplier B", costPerSearch: 0.00018, costPerBooking: 0.28, latencyMs: 240, weight: 0.3 },
+  { _id: "SUP_C", name: "Fictional Supplier C", costPerSearch: 0.00009, costPerBooking: 0.15, latencyMs: 320, weight: 0.2 },
 ].map((s) => ({ ...s, ...ill }));
 
 const capabilities = [
@@ -39,6 +39,7 @@ const hybrid = (capabilityId: string, F: number, A: number, e: number) => ({
 });
 const rate_plans = [
   { _id: "rp_search_flat_agency", capabilityId: "search", model: "flat", segment: "agency", label: "Flat $12,000/mo", params: { F: 12000 }, ...ill },
+  { _id: "rp_search_flat_ota", capabilityId: "search", model: "flat", segment: "ota", label: "Flat $30,000/mo", params: { F: 30000 }, ...ill },
   { _id: "rp_search_flat_bank", capabilityId: "search", model: "flat", segment: "bank", label: "Flat $60,000/mo", params: { F: 60000 }, ...ill },
   { _id: "rp_search_per_search", capabilityId: "search", model: "per_search", segment: "all", label: "$0.0004 per search", params: { p: 0.0004 }, ...ill },
   { _id: "rp_search_per_booking", capabilityId: "search", model: "per_booking", segment: "all", label: "$0.65 per confirmed booking", params: { q: 0.65 }, ...ill },

@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: Dedupe (fictional sandbox API)
+  version: "0.1.0"
+  description: >
+    ILLUSTRATIVE. Fictional company, invented data. Detect duplicate hotel records across suppliers.
+    Returns a match score and the signals behind it. Nothing merges automatically; a human approves.
+servers:
+  - url: http://localhost:3000/api/v1/sandbox
+security:
+  - bearerAuth: []
+paths:
+  /dedupe:
+    post:
+      summary: Score a candidate pair or look up proposals for a record
+      operationId: dedupe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, example: Larkspur Harbour Hotel }
+                postal: { type: string, example: M5H 2N2 }
+      responses:
+        "200": { description: Deterministic sandbox result }
+        "400": { description: Validation error }
+        "401": { description: Missing or invalid sandbox key }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
