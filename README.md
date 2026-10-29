@@ -192,6 +192,25 @@ Public pages read 2026-10-28. Secondary sources, mostly vendor pages: treat figu
 
 Default rates borrow the *shape* of the public excess-fee examples. The numbers are not a claim about any company.
 
+## Deploying
+
+The public deploy (Vercel) is **ephemeral file mode, by design**. Nothing is persisted and no real system is involved.
+
+| | Local (`npm run dev`) | Public deploy (Vercel) |
+|---|---|---|
+| Data | `seed/*.json` plus edits in `.data/` | `seed/*.json` plus edits in the OS temp dir (`os.tmpdir()/marketplace-demo-data`) |
+| Edits survive | Yes, until you delete `.data/` | No. They are per server instance and vanish on a cold start or redeploy |
+| Database | Atlas if `MONGODB_URI` is set | Never. Mongo is refused unless `ALLOW_PUBLIC_DB=1` |
+| Banner | None | "Live demo: anyone can try it, and changes reset periodically. All data is fictional." |
+| Rate limits | None | Per IP, in memory: 10 sandbox keys per 10 min, 60 mapping actions per min, 30 deal edits per min (then `429` with `Retry-After`) |
+| Body cap | 16 KB on JSON write routes (`413` if the `Content-Length` is larger, `400` if the body itself is) | same |
+
+- **No authentication, on purpose.** It is an open demo, so anyone can approve matches, edit deals and mint sandbox keys. The limits above only slow down a script; they are not security. Do not put real data in it.
+- **Atlas is for local runs.** The Mongo code path stays in the repo. If `MONGODB_URI` (or `DATA_MODE=mongo`) is set on Vercel, the app refuses Mongo mode (pages error with a message saying why), so a stray variable cannot open a database to the internet. Set `ALLOW_PUBLIC_DB=1` only if you have decided otherwise.
+- **To deploy:** import the repo in Vercel with no environment variables. Open every page, make an edit, then redeploy and confirm the edit is gone.
+- **Env vars:** `VERCEL` (set by the platform) switches on temp-dir writes, the banner, the rate limits and the Mongo guard. `PUBLIC_DEMO=1` does the same anywhere else. `DATA_DIR` sets the folder file mode writes to (it wins over both defaults). `ALLOW_PUBLIC_DB=1` lifts the Mongo guard.
+- **Limits that remain.** Counters and edits live in one server instance's memory or temp dir, so with several warm instances each has its own state and its own limits. Rate limiting trusts the `x-forwarded-for` header the platform sets; off Vercel it can be forged, which is why limits are only enforced on public deploys.
+
 ## Limits (honest)
 
 - **Invented data.** Suppliers, partners, hotels, prices, costs, stale-price rates and every parameter are made up for illustration.
@@ -200,8 +219,8 @@ Default rates borrow the *shape* of the public excess-fee examples. The numbers 
 - **Public-source research only,** mostly vendor marketing, so figures skew optimistic.
 - **Matching is a heuristic** tuned on 55 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data. Candidate generation is O(n²) and canonical-hotel union scans every canonical hotel, which is fine at this size and not at catalogue scale.
 - **Known gaps in dedupe.** Refreshing a still-open proposal (new score or rule version) does not write its own audit entry, so the audit "why" can lag the row. Transitive merges are not reconciled: after A-B and B-C are approved, A-C stays in the queue.
-- **Do not deploy as-is.** There is no authentication: anyone who can reach the app can approve matches, edit deals and mint sandbox keys, and signup has no rate limit. It is built to run locally. Add auth and limits before any public hosting, especially against a real Atlas database.
-- **Single process.** File mode serialises writes inside one Node process (transactions queue behind each other). It is not safe across multiple processes sharing one `.data/` folder. The idempotency store is in memory and resets on restart.
+- **Do not deploy this to a host with real data or a real database.** There is no authentication: anyone who can reach the app can approve matches, edit deals and mint sandbox keys. The supported public deploy is the ephemeral, fictional-data demo in "Deploying" above, which adds a banner, per-IP rate limits and a Mongo guard but still no auth. For anything else, add auth first, especially before pointing it at an Atlas database.
+- **Single process.** File mode serialises writes inside one Node process (transactions queue behind each other). It is not safe across multiple processes sharing one `.data/` folder. The idempotency store is in memory and resets on restart. On Vercel each warm instance has its own temp-dir state, so two visitors may see different edits.
 - **Per-capability tiers assume every capability is called S times a month** (content mapping and pricing included); a real price book would use each capability's own volume.
 - **Mongo mode is manually verified, not covered by automated tests** (the tests are deliberately offline).
 - **Out of scope:** payments, real supplier calls, auctions or ranking models, multi-language SDKs, real authentication, hosting.
