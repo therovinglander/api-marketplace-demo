@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { evaluateCache, sweepTtl, TTL_RANGE, type CacheConfig } from "@/lib/pricing/cache";
 import { INPUT_RANGES, type Inputs } from "@/lib/pricing/calculator";
 import { SLIDER_STEPS, formatRate, logToSlider, sliderToLog } from "@/lib/pricing/volume";
+import { CACHE_EXPLAINER, LOSES_MONEY_NOTE, breakEvenLine } from "@/lib/pricing/cacheCopy";
 import { Badge, Card, num, usd } from "@/components/ui";
 
 export function CacheClient({ cfg, costPerSearch, initialHitRate, initialTtl }: { cfg: CacheConfig; costPerSearch: number; initialHitRate: number; initialTtl: number }) {
@@ -14,6 +15,13 @@ export function CacheClient({ cfg, costPerSearch, initialHitRate, initialTtl }: 
 
   return (
     <div className="space-y-4">
+      <Card title="What is cache hit rate?">
+        <div className="space-y-1 text-sm text-stone-700">
+          {CACHE_EXPLAINER.map((t) => (
+            <p key={t}>{t}</p>
+          ))}
+        </div>
+      </Card>
       <Card title="Toggle and tune (illustrative)">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
@@ -48,11 +56,8 @@ export function CacheClient({ cfg, costPerSearch, initialHitRate, initialTtl }: 
           <div className="flex justify-between"><dt>Cost of failed checkouts ({usd(cfg.failedCheckoutCost)} each, invented)</dt><dd className="tabular-nums">{usd(res.failedCheckoutCost)}</dd></div>
           <div className="flex justify-between font-semibold"><dt>Net</dt><dd className={`tabular-nums ${res.net < 0 ? "text-red-700" : "text-teal-700"}`}>{usd(res.net)}</dd></div>
         </dl>
-        <p className="mt-3 text-xs text-stone-600">
-          {res.breakEvenCostPerSearch === null
-            ? "With a 0% hit rate there is no saving to weigh."
-            : `This setting pays for itself only if an upstream search costs more than ${usd(res.breakEvenCostPerSearch, 5)}. With cheap upstream searches, the case for a cache is mostly speed and avoiding supplier excess-search fees, not raw call cost.`}
-        </p>
+        <p className="mt-3 text-xs text-stone-600">{breakEvenLine(res, costPerSearch)}</p>
+        {res.net < 0 ? <p className="mt-1 text-xs text-stone-600">{LOSES_MONEY_NOTE}</p> : null}
       </Card>
 
       <Card title="Lifetime sweep at this hit rate">
