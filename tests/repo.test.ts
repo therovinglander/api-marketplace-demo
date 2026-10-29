@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import path from "node:path";
 import { FileRepo } from "@/lib/repo/file";
-import { resolveMode } from "@/lib/repo";
+import { resolveMode, PublicDbRefusedError } from "@/lib/repo";
 import { appendAudit, auditFor } from "@/lib/repo/audit";
 import { ConflictError } from "@/lib/repo/types";
 
@@ -12,6 +12,29 @@ describe("resolveMode", () => {
   it("defaults to file when no URI", () => expect(resolveMode({})).toBe("file"));
   it("uses mongo when URI set", () => expect(resolveMode({ MONGODB_URI: "x" })).toBe("mongo"));
   it("DATA_MODE=file wins over URI", () => expect(resolveMode({ MONGODB_URI: "x", DATA_MODE: "file" })).toBe("file"));
+
+  describe("public-deploy Mongo guard (S9)", () => {
+    it("Vercel + MONGODB_URI refuses mongo mode", () => {
+      expect(() => resolveMode({ VERCEL: "1", MONGODB_URI: "mongodb://x" })).toThrow(PublicDbRefusedError);
+    });
+    it("Vercel + DATA_MODE=mongo refuses too", () => {
+      expect(() => resolveMode({ VERCEL: "1", DATA_MODE: "mongo", MONGODB_URI: "x" })).toThrow(/ALLOW_PUBLIC_DB/);
+    });
+    it("PUBLIC_DEMO=1 is treated as public", () => {
+      expect(() => resolveMode({ PUBLIC_DEMO: "1", MONGODB_URI: "x" })).toThrow(PublicDbRefusedError);
+    });
+    it("ALLOW_PUBLIC_DB=1 lifts the guard; any other value does not", () => {
+      expect(resolveMode({ VERCEL: "1", MONGODB_URI: "x", ALLOW_PUBLIC_DB: "1" })).toBe("mongo");
+      expect(() => resolveMode({ VERCEL: "1", MONGODB_URI: "x", ALLOW_PUBLIC_DB: "true" })).toThrow(PublicDbRefusedError);
+    });
+    it("Vercel with no URI, or DATA_MODE=file, stays in file mode without error", () => {
+      expect(resolveMode({ VERCEL: "1" })).toBe("file");
+      expect(resolveMode({ VERCEL: "1", MONGODB_URI: "x", DATA_MODE: "file" })).toBe("file");
+    });
+    it("local with a URI still gets mongo (unchanged)", () => {
+      expect(resolveMode({ MONGODB_URI: "x" })).toBe("mongo");
+    });
+  });
 });
 
 describe("seed", () => {
