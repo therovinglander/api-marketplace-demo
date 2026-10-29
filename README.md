@@ -105,7 +105,7 @@ The same arithmetic is pinned in `tests/pricing.test.ts`.
 
 ## Dedupe / property mapping
 
-The same hotel shows up under several supplier codes with messy data: abbreviations ("St." vs "Street"), transposed digits, geo drift of 50 to 300 m, missing phones. The seed has 12 invented hotels x 3 fictional suppliers plus one decoy with the same name in a different city.
+The same hotel shows up under several supplier codes with messy data: abbreviations ("St." vs "Street"), transposed digits, geo drift of 50 to 300 m, missing phones. The seed has 12 invented hotels x 3 fictional suppliers plus one decoy with the same name in a different city, and the scenario pairs below (55 records in all).
 
 - **Blocking** (avoid comparing everything with everything): only compare records from *different* suppliers that share the first three characters of the postal code, or are within 500 m.
 - **Signals**, each 0 to 1: name (Jaro-Winkler on normalised, sorted tokens, or token overlap, whichever is higher), address (token overlap on street, city, postal), geo (`1 - distance / 300 m`, floored at 0), phone (exact match on digits).
@@ -114,7 +114,24 @@ The same hotel shows up under several supplier codes with messy data: abbreviati
 - **Nothing auto-merges.** A human approves or rejects. Approval writes the proposal status, the canonical hotel and the audit entry in one transaction. Approving a pair when one side is already in a canonical hotel *joins* it, so a cluster of three ends as one hotel with three members. A repeated decision is a no-op.
 - **Audit log** is append-only: the only write path is `appendAudit()`, and the repository rejects updates to that collection.
 
-Weights and thresholds are invented starting points, not tuned on real data.
+Weights and thresholds are invented starting points, not tuned on real data. Rule version is `v2`: v1 did not fold accents, so "Hôtel" and "Hotel" differed; v2 folds them. Weights and thresholds are unchanged.
+
+### Seeded scenarios (all invented)
+
+Besides the 12 clean clusters, the seed has 8 deliberate test pairs and 2 orphans, so the queue shows a real score spread. The intended outcome is what a reviewer should do. Nothing auto-merges, so several intended approves and rejects land in the review band. `tests/matching.test.ts` asserts that every intended non-match scores below the 0.85 auto band, and the pairs are listed in `seed/dedupe_scenarios.json`.
+
+| Pair | Case | Intended | Score | Band |
+|---|---|---|---|---|
+| Ironbark Grand Downtown / Airport | Same brand, different property | Reject | 0.26 | not proposed |
+| Pelham Street Hotel / Residences | Sister properties, same address, different phone | Reject | 0.79 | review |
+| Meridian Lakeside Inn / Cedarwood Waterfront Lodge | Rebrand: new name, same address, location, phone | Approve | 0.85 | review |
+| Hôtel Beauclerc / Beauclerc Hotel (Québec) | Bilingual name | Approve | 0.98 | strong |
+| Harlow Bridge Hotel (two feeds) | Coordinates about 300 m off, no phone on one side | Approve | 0.72 | review |
+| Tamarak Ridge Lodge / Tamarack Ridge Lodge & Spa | Typo, extra words, missing street line | Approve | 0.79 | review |
+| Northwind Suites, 410 / 1850 Main Street | Same chain, same road, 1.2 km apart | Reject | 0.59 | not proposed |
+| Harbourview Inn North / South | Neighbouring wings, different phones | Reject | 0.73 | review |
+
+Lantern Hill Cabins and Fennimore Station Hotel have no counterpart and are never proposed. Scores are rounded from the seeded data and pinned by the band assertions in the tests.
 
 ## Cache toggle
 
@@ -181,7 +198,7 @@ Default rates borrow the *shape* of the public excess-fee examples. The numbers 
 - **Fictional company.** This is not modelled on, and does not describe, any real company.
 - **No marketplace P&L experience is implied.** This shows how I would frame the problem, not results from running one.
 - **Public-source research only,** mostly vendor marketing, so figures skew optimistic.
-- **Matching is a heuristic** tuned on 37 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data. Candidate generation is O(n²) and canonical-hotel union scans every canonical hotel, which is fine at this size and not at catalogue scale.
+- **Matching is a heuristic** tuned on 55 hand-made records. Real catalogues are larger, messier and need evaluation against labelled data. Candidate generation is O(n²) and canonical-hotel union scans every canonical hotel, which is fine at this size and not at catalogue scale.
 - **Known gaps in dedupe.** Refreshing a still-open proposal (new score or rule version) does not write its own audit entry, so the audit "why" can lag the row. Transitive merges are not reconciled: after A-B and B-C are approved, A-C stays in the queue.
 - **Do not deploy as-is.** There is no authentication: anyone who can reach the app can approve matches, edit deals and mint sandbox keys, and signup has no rate limit. It is built to run locally. Add auth and limits before any public hosting, especially against a real Atlas database.
 - **Single process.** File mode serialises writes inside one Node process (transactions queue behind each other). It is not safe across multiple processes sharing one `.data/` folder. The idempotency store is in memory and resets on restart.

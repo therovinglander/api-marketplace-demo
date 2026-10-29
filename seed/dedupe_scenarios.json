@@ -1,0 +1,74 @@
+[
+  {
+    "id": "S01",
+    "case": "Same brand, different property",
+    "intended": "reject",
+    "band": "below",
+    "note": "Same chain, downtown vs airport: name matches, nothing else does.",
+    "aId": "hr_SUP_A_S01",
+    "bId": "hr_SUP_B_S01"
+  },
+  {
+    "id": "S02",
+    "case": "Sister properties at the same address",
+    "intended": "reject",
+    "band": "review",
+    "note": "Hotel and residences share a building; the phone and the name differ. Lands in the review band for a human to reject.",
+    "aId": "hr_SUP_A_S02",
+    "bId": "hr_SUP_C_S02"
+  },
+  {
+    "id": "S03",
+    "case": "Rebrand",
+    "intended": "approve",
+    "band": "review",
+    "note": "Totally different name, same address, location and phone. The name signal is near zero, so the score stays in the review band for a human to approve.",
+    "aId": "hr_SUP_B_S03",
+    "bId": "hr_SUP_C_S03"
+  },
+  {
+    "id": "S04",
+    "case": "Bilingual name",
+    "intended": "approve",
+    "band": "strong",
+    "note": "French and English forms of the same name, with diacritics. Needs accent folding (rule v2).",
+    "aId": "hr_SUP_A_S04",
+    "bId": "hr_SUP_B_S04"
+  },
+  {
+    "id": "S05",
+    "case": "Location drift",
+    "intended": "approve",
+    "band": "review",
+    "note": "Same hotel, coordinates about 300 m apart, and no phone on one side. A human should look at it.",
+    "aId": "hr_SUP_A_S05",
+    "bId": "hr_SUP_C_S05"
+  },
+  {
+    "id": "S06",
+    "case": "Typos and missing fields",
+    "intended": "approve",
+    "band": "review",
+    "note": "Misspelt name, extra words and no street line on one side. A lower score than the clean pairs, but still the same hotel.",
+    "aId": "hr_SUP_B_S06",
+    "bId": "hr_SUP_C_S06"
+  },
+  {
+    "id": "S07",
+    "case": "Same chain, same street",
+    "intended": "reject",
+    "band": "below",
+    "note": "Two franchise properties on one road, about 1.2 km apart.",
+    "aId": "hr_SUP_A_S07",
+    "bId": "hr_SUP_B_S07"
+  },
+  {
+    "id": "S08",
+    "case": "Orientation suffix",
+    "intended": "reject",
+    "band": "review",
+    "note": "North and South wings sold as separate properties 120 m apart on one road, with different phones. Needs a human to reject.",
+    "aId": "hr_SUP_A_S08",
+    "bId": "hr_SUP_C_S08"
+  }
+]

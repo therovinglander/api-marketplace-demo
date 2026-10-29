@@ -27,7 +27,7 @@ export interface MatchingConfig {
 }
 
 export const DEFAULT_MATCHING: MatchingConfig = {
-  ruleVersion: "v1",
+  ruleVersion: "v2",
   weights: { name: 0.35, address: 0.3, geo: 0.25, phone: 0.1 },
   strong: 0.85,
   review: 0.6,

@@ -20,9 +20,11 @@ const ABBREVIATIONS: Record<string, string> = {
 };
 const DROP = new Set(["the"]);
 
-/** lowercase, "&" -> "and", strip punctuation, expand abbreviations, drop articles. */
+/** lowercase, fold accents (Hôtel -> hotel), "&" -> "and", strip punctuation, expand abbreviations, drop articles. */
 export function tokens(input: string): string[] {
   return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/&/g, " and ")
     .replace(/[^a-z0-9\s]/g, " ")

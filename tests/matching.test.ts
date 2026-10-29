@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import fs from "node:fs";
 import path from "node:path";
 import { FileRepo } from "@/lib/repo/file";
 import { auditFor } from "@/lib/repo/audit";
@@ -51,8 +52,8 @@ describe("text helpers", () => {
 });
 
 describe("seeded dedupe", () => {
-  it("has 37 records: 12 clusters x 3 suppliers + 1 decoy", async () => {
-    expect((await records()).length).toBe(37);
+  it("has 55 records: 12 clusters x 3 suppliers + 1 decoy + 16 scenario records + 2 orphans", async () => {
+    expect((await records()).length).toBe(55);
   });
 
   it("proposes every true pair (12 clusters x 3 pairs)", async () => {
@@ -119,15 +120,91 @@ describe("seeded dedupe", () => {
   });
 });
 
+describe("dedupe scenarios (U5)", () => {
+  type Scn = { id: string; case: string; intended: "approve" | "reject"; band: "strong" | "review" | "below"; aId: string; bId: string };
+  const scenarios = (): Scn[] => JSON.parse(fs.readFileSync(path.join(seedDir, "dedupe_scenarios.json"), "utf8"));
+
+  it("covers all six required cases", () => {
+    const cases = new Set(scenarios().map((s) => s.case));
+    for (const c of ["Same brand, different property", "Sister properties at the same address", "Rebrand", "Bilingual name", "Location drift", "Typos and missing fields"]) {
+      expect(cases.has(c)).toBe(true);
+    }
+  });
+
+  it("every intended non-match scores below the strong (auto-approve) band", async () => {
+    const rs = await records();
+    for (const s of scenarios().filter((x) => x.intended === "reject")) {
+      const res = scorePair(byId(rs, s.aId), byId(rs, s.bId));
+      expect(res.score, `${s.id} ${s.case}`).toBeLessThan(DEFAULT_MATCHING.strong);
+      expect(res.tier, s.id).not.toBe("strong");
+    }
+  });
+
+  it("every intended match is proposed (strong or review), never silently dropped", async () => {
+    const rs = await records();
+    for (const s of scenarios().filter((x) => x.intended === "approve")) {
+      const res = scorePair(byId(rs, s.aId), byId(rs, s.bId));
+      expect(res.tier, `${s.id} ${s.case}`).not.toBeNull();
+    }
+  });
+
+  it("each scenario lands in the band recorded for it", async () => {
+    const rs = await records();
+    for (const s of scenarios()) {
+      const tier = scorePair(byId(rs, s.aId), byId(rs, s.bId)).tier ?? "below";
+      expect(tier, `${s.id} ${s.case}`).toBe(s.band);
+    }
+  });
+
+  it("the queue has a real spread: clear approves, a middle review band, and plausible rejects", async () => {
+    const ps = proposePairs(await records());
+    const strong = ps.filter((p) => p.result.tier === "strong").length;
+    const review = ps.filter((p) => p.result.tier === "review").length;
+    expect(strong).toBeGreaterThanOrEqual(30);
+    expect(review).toBeGreaterThanOrEqual(5);
+    const scores = ps.map((p) => p.result.score);
+    expect(Math.max(...scores) - Math.min(...scores)).toBeGreaterThan(0.25);
+  });
+
+  it("the rebrand is found through address, location and phone even though the names share nothing", async () => {
+    const rs = await records();
+    const s = scenarios().find((x) => x.case === "Rebrand")!;
+    const res = scorePair(byId(rs, s.aId), byId(rs, s.bId));
+    expect(res.signals.address).toBe(1);
+    expect(res.signals.phone).toBe(1);
+    expect(res.signals.name).toBeLessThan(0.7);
+    expect(res.reason).toContain("name ");
+  });
+
+  it("the bilingual pair needs accent folding: Hôtel == Hotel", () => {
+    expect(normaliseName("Hôtel Beauclerc")).toBe("hotel beauclerc");
+    expect(nameSimilarity("Hôtel Beauclerc", "Beauclerc Hotel")).toBe(1);
+  });
+
+  it("location drift with no phone is reweighted and explained", async () => {
+    const rs = await records();
+    const s = scenarios().find((x) => x.case === "Location drift")!;
+    const res = scorePair(byId(rs, s.aId), byId(rs, s.bId));
+    expect(res.phoneReweighted).toBe(true);
+    expect(res.reason).toContain("redistributed");
+    expect(res.distanceMeters).toBeGreaterThan(250);
+  });
+
+  it("orphans are never proposed", async () => {
+    const ps = proposePairs(await records());
+    expect(ps.some((p) => p.aId.includes("_O0") || p.bId.includes("_O0"))).toBe(false);
+  });
+});
+
 describe("proposal generation + review", () => {
   it("is idempotent: a re-run creates 0 new rows", async () => {
     const r = repo();
     const first = await generateProposals(r);
-    expect(first.created).toBe(36);
+    expect(first.created).toBe(42);
     const second = await generateProposals(r);
     expect(second.created).toBe(0);
-    expect((await r.find("match_proposals")).length).toBe(36);
-    expect((await r.find("audit_log")).length).toBe(36);
+    expect((await r.find("match_proposals")).length).toBe(42);
+    expect((await r.find("audit_log")).length).toBe(42);
   });
 
   it("a re-run never touches decided rows", async () => {
@@ -190,7 +267,7 @@ describe("proposal generation + review", () => {
     const id = proposalId("hr_SUP_A_0004", "hr_SUP_C_0004");
     const [entry] = await auditFor(r, "match_proposal", id);
     const d = entry.details as Record<string, unknown>;
-    expect(d.ruleVersion).toBe("v1");
+    expect(d.ruleVersion).toBe("v2");
     expect(d.thresholds).toEqual({ strong: 0.85, review: 0.6 });
     expect(d.phoneReweighted).toBe(true);
     expect(entry.reason).toContain("redistributed");

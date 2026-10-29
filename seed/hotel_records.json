@@ -1577,5 +1577,671 @@
       }
     ],
     "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S01",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9100",
+    "name": "Ironbark Grand Downtown",
+    "address": {
+      "line1": "800 Nicollet Mall",
+      "city": "Minneapolis",
+      "region": "MN",
+      "country": "US",
+      "postal": "55402"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -93.265,
+        44.9778
+      ]
+    },
+    "phone": "6125550201",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_S01",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-9101",
+    "name": "Ironbark Grand Airport",
+    "address": {
+      "line1": "2 Airport Road",
+      "city": "Bloomington",
+      "region": "MN",
+      "country": "US",
+      "postal": "55425"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -93.241,
+        44.859
+      ]
+    },
+    "phone": "9525550202",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S02",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9102",
+    "name": "Pelham Street Hotel",
+    "address": {
+      "line1": "70 Pelham Street",
+      "city": "Savannah",
+      "region": "GA",
+      "country": "US",
+      "postal": "31401"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -81.0912,
+        32.0809
+      ]
+    },
+    "phone": "9125550211",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_S02",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9103",
+    "name": "Pelham Street Residences",
+    "address": {
+      "line1": "70 Pelham Street",
+      "city": "Savannah",
+      "region": "GA",
+      "country": "US",
+      "postal": "31401"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -81.0912,
+        32.0809
+      ]
+    },
+    "phone": "9125550212",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_S03",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-9104",
+    "name": "Meridian Lakeside Inn",
+    "address": {
+      "line1": "15 Shoreline Drive",
+      "city": "Kelowna",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V1Y 5B6"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -119.496,
+        49.888
+      ]
+    },
+    "phone": "2505550221",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_S03",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9105",
+    "name": "Cedarwood Waterfront Lodge",
+    "address": {
+      "line1": "15 Shoreline Dr.",
+      "city": "Kelowna",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V1Y5B6"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -119.496,
+        49.888
+      ]
+    },
+    "phone": "(250) 555-0221",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S04",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9106",
+    "name": "Hôtel Beauclerc",
+    "address": {
+      "line1": "12 Rue Saint-Louis",
+      "city": "Québec",
+      "region": "QC",
+      "country": "CA",
+      "postal": "G1R 3Z2"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -71.205,
+        46.811
+      ]
+    },
+    "phone": "4185550231",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_S04",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-9107",
+    "name": "Beauclerc Hotel",
+    "address": {
+      "line1": "12 rue Saint-Louis",
+      "city": "Quebec",
+      "region": "QC",
+      "country": "CA",
+      "postal": "G1R3Z2"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -71.2052,
+        46.8112
+      ]
+    },
+    "phone": "+1 418 555 0231",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S05",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9108",
+    "name": "Harlow Bridge Hotel",
+    "address": {
+      "line1": "500 Water Street",
+      "city": "Wilmington",
+      "region": "NC",
+      "country": "US",
+      "postal": "28401"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -77.948,
+        34.236
+      ]
+    },
+    "phone": "9105550241",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_S05",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9109",
+    "name": "Harlow Bridge Hotel",
+    "address": {
+      "line1": "500 Water St",
+      "city": "Wilmington",
+      "region": "NC",
+      "country": "US",
+      "postal": "28401"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -77.948,
+        34.2387
+      ]
+    },
+    "phone": null,
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_S06",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-9110",
+    "name": "Tamarak Ridge Lodge",
+    "address": {
+      "line1": "300 Mountain Avenue",
+      "city": "Banff",
+      "region": "AB",
+      "country": "CA",
+      "postal": "T1L 1A1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -115.5708,
+        51.1784
+      ]
+    },
+    "phone": "4035550251",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_S06",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9111",
+    "name": "Tamarack Ridge Lodge & Spa",
+    "address": {
+      "line1": "",
+      "city": "Banff",
+      "region": "AB",
+      "country": "CA",
+      "postal": "T1L 1A1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -115.5708,
+        51.1784
+      ]
+    },
+    "phone": "4035550251",
+    "stars": 4,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S07",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9112",
+    "name": "Northwind Suites",
+    "address": {
+      "line1": "410 Main Street",
+      "city": "Boise",
+      "region": "ID",
+      "country": "US",
+      "postal": "83702"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -116.2023,
+        43.615
+      ]
+    },
+    "phone": "2085550261",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_B_S07",
+    "supplierCode": "SUP_B",
+    "supplierHotelId": "B-9113",
+    "name": "Northwind Suites",
+    "address": {
+      "line1": "1850 Main Street",
+      "city": "Boise",
+      "region": "ID",
+      "country": "US",
+      "postal": "83702"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -116.2023,
+        43.6255
+      ]
+    },
+    "phone": "2085550262",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "BKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "BTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_S08",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9114",
+    "name": "Harbourview Inn North",
+    "address": {
+      "line1": "9 Pier Road",
+      "city": "Victoria",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V8W 1A1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -123.3657,
+        48.4222
+      ]
+    },
+    "phone": "2505550271",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_S08",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9115",
+    "name": "Harbourview Inn South",
+    "address": {
+      "line1": "11 Pier Road",
+      "city": "Victoria",
+      "region": "BC",
+      "country": "CA",
+      "postal": "V8W 1A1"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -123.3657,
+        48.4211
+      ]
+    },
+    "phone": "2505550272",
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_A_O01",
+    "supplierCode": "SUP_A",
+    "supplierHotelId": "A-9200",
+    "name": "Lantern Hill Cabins",
+    "address": {
+      "line1": "1 Ridge Trail",
+      "city": "Asheville",
+      "region": "NC",
+      "country": "US",
+      "postal": "28801"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -82.5515,
+        35.5951
+      ]
+    },
+    "phone": "8285550281",
+    "stars": 2,
+    "rooms": [
+      {
+        "code": "AKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "ATWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
+  },
+  {
+    "_id": "hr_SUP_C_O02",
+    "supplierCode": "SUP_C",
+    "supplierHotelId": "C-9201",
+    "name": "Fennimore Station Hotel",
+    "address": {
+      "line1": "22 Depot Street",
+      "city": "Fargo",
+      "region": "ND",
+      "country": "US",
+      "postal": "58102"
+    },
+    "geo": {
+      "type": "Point",
+      "coordinates": [
+        -96.7898,
+        46.8772
+      ]
+    },
+    "phone": null,
+    "stars": 3,
+    "rooms": [
+      {
+        "code": "CKNG",
+        "name": "Deluxe King",
+        "beds": 1,
+        "view": "city"
+      },
+      {
+        "code": "CTWN",
+        "name": "Standard Twin",
+        "beds": 2,
+        "view": "garden"
+      }
+    ],
+    "illustrative": true
   }
 ]

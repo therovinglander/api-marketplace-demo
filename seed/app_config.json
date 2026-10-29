@@ -12,7 +12,7 @@
   },
   {
     "_id": "matching",
-    "ruleVersion": "v1",
+    "ruleVersion": "v2",
     "weights": {
       "name": 0.35,
       "address": 0.3,

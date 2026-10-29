@@ -63,7 +63,7 @@ const price_books = [
 
 const app_config = [
   { _id: "cache", hitRate: 0.3, ttlMinutes: 10, hitRateMax: 0.9, hitRateVendorClaim: 0.7, staleCap: 0.12, staleBase: 0.0015, failedCheckoutCost: 4 },
-  { _id: "matching", ruleVersion: "v1", weights: { name: 0.35, address: 0.3, geo: 0.25, phone: 0.1 }, strong: 0.85, review: 0.6, geoFullDecayMeters: 300, blockMeters: 500, blockPostalPrefix: 3 },
+  { _id: "matching", ruleVersion: "v2", weights: { name: 0.35, address: 0.3, geo: 0.25, phone: 0.1 }, strong: 0.85, review: 0.6, geoFullDecayMeters: 300, blockMeters: 500, blockPostalPrefix: 3 },
   { _id: "l2b_refs", duffel: { excessFeePerSearch: 0.005, aboveL2B: 1500, source: "duffel.com/pricing (vendor-listed, Oct 2026)" }, ndcGateway: { excessFeePerSearch: 0.05, aboveL2B: 400, source: "ndcgateway.com/en-US/pricing (vendor-listed, Oct 2026)" } },
 ].map((c) => ({ ...c, ...ill }));
 
@@ -130,6 +130,67 @@ hotel_records.push({
   rooms: [{ code: "CKNG", name: "Standard King", beds: 1, view: "street" }], ...ill,
 });
 
+// ---- U5: dedupe scenarios. Each pair is a deliberate test of the matcher; the intended outcome is recorded in
+// seed/dedupe_scenarios.json (documentation + test input, not loaded as a collection). ALL INVENTED. ----
+type Outcome = "approve" | "reject";
+interface Rec { sup: "SUP_A" | "SUP_B" | "SUP_C"; name: string; line1: string; city: string; region: string; country: string; postal: string; lat: number; lng: number; phone: string | null; stars: number }
+interface Scenario { id: string; case: string; intended: Outcome; band: "strong" | "review" | "below"; note: string; a: Rec; b: Rec }
+const scenarios: Scenario[] = [
+  { id: "S01", case: "Same brand, different property", intended: "reject", band: "below",
+    note: "Same chain, downtown vs airport: name matches, nothing else does.",
+    a: { sup: "SUP_A", name: "Ironbark Grand Downtown", line1: "800 Nicollet Mall", city: "Minneapolis", region: "MN", country: "US", postal: "55402", lat: 44.9778, lng: -93.2650, phone: "6125550201", stars: 4 },
+    b: { sup: "SUP_B", name: "Ironbark Grand Airport", line1: "2 Airport Road", city: "Bloomington", region: "MN", country: "US", postal: "55425", lat: 44.8590, lng: -93.2410, phone: "9525550202", stars: 3 } },
+  { id: "S02", case: "Sister properties at the same address", intended: "reject", band: "review",
+    note: "Hotel and residences share a building; the phone and the name differ. Lands in the review band for a human to reject.",
+    a: { sup: "SUP_A", name: "Pelham Street Hotel", line1: "70 Pelham Street", city: "Savannah", region: "GA", country: "US", postal: "31401", lat: 32.0809, lng: -81.0912, phone: "9125550211", stars: 4 },
+    b: { sup: "SUP_C", name: "Pelham Street Residences", line1: "70 Pelham Street", city: "Savannah", region: "GA", country: "US", postal: "31401", lat: 32.0809, lng: -81.0912, phone: "9125550212", stars: 4 } },
+  { id: "S03", case: "Rebrand", intended: "approve", band: "review",
+    note: "Totally different name, same address, location and phone. The name signal is near zero, so the score stays in the review band for a human to approve.",
+    a: { sup: "SUP_B", name: "Meridian Lakeside Inn", line1: "15 Shoreline Drive", city: "Kelowna", region: "BC", country: "CA", postal: "V1Y 5B6", lat: 49.8880, lng: -119.4960, phone: "2505550221", stars: 3 },
+    b: { sup: "SUP_C", name: "Cedarwood Waterfront Lodge", line1: "15 Shoreline Dr.", city: "Kelowna", region: "BC", country: "CA", postal: "V1Y5B6", lat: 49.8880, lng: -119.4960, phone: "(250) 555-0221", stars: 3 } },
+  { id: "S04", case: "Bilingual name", intended: "approve", band: "strong",
+    note: "French and English forms of the same name, with diacritics. Needs accent folding (rule v2).",
+    a: { sup: "SUP_A", name: "Hôtel Beauclerc", line1: "12 Rue Saint-Louis", city: "Québec", region: "QC", country: "CA", postal: "G1R 3Z2", lat: 46.8110, lng: -71.2050, phone: "4185550231", stars: 4 },
+    b: { sup: "SUP_B", name: "Beauclerc Hotel", line1: "12 rue Saint-Louis", city: "Quebec", region: "QC", country: "CA", postal: "G1R3Z2", lat: 46.8112, lng: -71.2052, phone: "+1 418 555 0231", stars: 4 } },
+  { id: "S05", case: "Location drift", intended: "approve", band: "review",
+    note: "Same hotel, coordinates about 300 m apart, and no phone on one side. A human should look at it.",
+    a: { sup: "SUP_A", name: "Harlow Bridge Hotel", line1: "500 Water Street", city: "Wilmington", region: "NC", country: "US", postal: "28401", lat: 34.2360, lng: -77.9480, phone: "9105550241", stars: 3 },
+    b: { sup: "SUP_C", name: "Harlow Bridge Hotel", line1: "500 Water St", city: "Wilmington", region: "NC", country: "US", postal: "28401", lat: 34.2387, lng: -77.9480, phone: null, stars: 3 } },
+  { id: "S06", case: "Typos and missing fields", intended: "approve", band: "review",
+    note: "Misspelt name, extra words and no street line on one side. A lower score than the clean pairs, but still the same hotel.",
+    a: { sup: "SUP_B", name: "Tamarak Ridge Lodge", line1: "300 Mountain Avenue", city: "Banff", region: "AB", country: "CA", postal: "T1L 1A1", lat: 51.1784, lng: -115.5708, phone: "4035550251", stars: 4 },
+    b: { sup: "SUP_C", name: "Tamarack Ridge Lodge & Spa", line1: "", city: "Banff", region: "AB", country: "CA", postal: "T1L 1A1", lat: 51.1784, lng: -115.5708, phone: "4035550251", stars: 4 } },
+  { id: "S07", case: "Same chain, same street", intended: "reject", band: "below",
+    note: "Two franchise properties on one road, about 1.2 km apart.",
+    a: { sup: "SUP_A", name: "Northwind Suites", line1: "410 Main Street", city: "Boise", region: "ID", country: "US", postal: "83702", lat: 43.6150, lng: -116.2023, phone: "2085550261", stars: 3 },
+    b: { sup: "SUP_B", name: "Northwind Suites", line1: "1850 Main Street", city: "Boise", region: "ID", country: "US", postal: "83702", lat: 43.6255, lng: -116.2023, phone: "2085550262", stars: 3 } },
+  { id: "S08", case: "Orientation suffix", intended: "reject", band: "review",
+    note: "North and South wings sold as separate properties 120 m apart on one road, with different phones. Needs a human to reject.",
+    a: { sup: "SUP_A", name: "Harbourview Inn North", line1: "9 Pier Road", city: "Victoria", region: "BC", country: "CA", postal: "V8W 1A1", lat: 48.4222, lng: -123.3657, phone: "2505550271", stars: 3 },
+    b: { sup: "SUP_C", name: "Harbourview Inn South", line1: "11 Pier Road", city: "Victoria", region: "BC", country: "CA", postal: "V8W 1A1", lat: 48.4211, lng: -123.3657, phone: "2505550272", stars: 3 } },
+];
+// Two orphans with no counterpart anywhere: they must never be proposed.
+const orphans: Rec[] = [
+  { sup: "SUP_A", name: "Lantern Hill Cabins", line1: "1 Ridge Trail", city: "Asheville", region: "NC", country: "US", postal: "28801", lat: 35.5951, lng: -82.5515, phone: "8285550281", stars: 2 },
+  { sup: "SUP_C", name: "Fennimore Station Hotel", line1: "22 Depot Street", city: "Fargo", region: "ND", country: "US", postal: "58102", lat: 46.8772, lng: -96.7898, phone: null, stars: 3 },
+];
+const toRecord = (r: Rec, id: string, n: number): Record<string, unknown> => ({
+  _id: id, supplierCode: r.sup, supplierHotelId: `${r.sup.slice(-1)}-${n}`,
+  name: r.name, address: { line1: r.line1, city: r.city, region: r.region, country: r.country, postal: r.postal },
+  geo: { type: "Point", coordinates: [r6(r.lng), r6(r.lat)] }, phone: r.phone, stars: r.stars,
+  rooms: ROOMS.slice(0, 2).map(([c, nm, beds, view]) => ({ code: `${r.sup.slice(-1)}${c}`, name: nm, beds, view })),
+  ...ill,
+});
+const scenarioDocs = scenarios.map((s) => ({
+  id: s.id, case: s.case, intended: s.intended, band: s.band, note: s.note,
+  aId: `hr_${s.a.sup}_${s.id}`, bId: `hr_${s.b.sup}_${s.id}`,
+}));
+scenarios.forEach((s, i) => {
+  hotel_records.push(toRecord(s.a, `hr_${s.a.sup}_${s.id}`, 9100 + i * 2));
+  hotel_records.push(toRecord(s.b, `hr_${s.b.sup}_${s.id}`, 9101 + i * 2));
+});
+orphans.forEach((o, i) => hotel_records.push(toRecord(o, `hr_${o.sup}_O${String(i + 1).padStart(2, "0")}`, 9200 + i)));
+
 const out: Record<string, unknown[]> = {
   suppliers, capabilities, rate_plans, partners, price_books, hotel_records, app_config,
 };
@@ -138,4 +199,5 @@ fs.mkdirSync(dir, { recursive: true });
 for (const [name, rows] of Object.entries(out)) {
   fs.writeFileSync(path.join(dir, `${name}.json`), JSON.stringify(rows, null, 2) + "\n");
 }
+fs.writeFileSync(path.join(dir, "dedupe_scenarios.json"), JSON.stringify(scenarioDocs, null, 2) + "\n");
 console.log(`seed written: ${Object.entries(out).map(([k, v]) => `${k}=${v.length}`).join(" ")}`);

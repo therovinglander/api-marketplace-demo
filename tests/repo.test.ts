@@ -15,11 +15,11 @@ describe("resolveMode", () => {
 });
 
 describe("seed", () => {
-  it("has 6 capabilities, 3 suppliers and 37 hotel records (12x3 + 1 decoy)", async () => {
+  it("has 6 capabilities, 3 suppliers and 55 hotel records (12x3 + 1 decoy + 16 scenario + 2 orphans)", async () => {
     const r = fresh();
     expect((await r.find("capabilities")).length).toBe(6);
     expect((await r.find("suppliers")).length).toBe(3);
-    expect((await r.find("hotel_records")).length).toBe(37);
+    expect((await r.find("hotel_records")).length).toBe(55);
   });
   it("every seeded doc is labelled illustrative", async () => {
     const r = fresh();
