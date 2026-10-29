@@ -1,6 +1,7 @@
 import { getRepo } from "@/lib/repo";
 import { loadPricingContext } from "@/lib/pricing/load";
 import { dealQuote } from "@/lib/pricing/deals";
+import { DEALS_SCOPE, DEALS_WHO, DEALS_WHY, DEAL_TERMS } from "@/lib/pricing/dealsCopy";
 import { activeBook, listVersions } from "@/lib/pricing/dealsService";
 import { Badge, Card, PageTitle, num, usd } from "@/components/ui";
 import { editDealAction } from "./actions";
@@ -29,6 +30,23 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
         title="Custom deals: committed-volume discounts"
         subtitle="A large partner trades a volume commitment for a lower rate. Each partner has a versioned price book: an edit never overwrites, it creates the next version and keeps the old one."
       />
+      <div className="mb-4 space-y-1 text-sm text-stone-700">
+        <p>{DEALS_WHO}</p>
+        {DEALS_WHY.map((w) => (
+          <p key={w.label}><b>{w.label}</b> {w.text}</p>
+        ))}
+        <p className="text-xs text-stone-600">{DEALS_SCOPE}</p>
+      </div>
+      <Card title="Terms in one line" className="mb-4">
+        <dl className="space-y-1 text-sm">
+          {DEAL_TERMS.map((t) => (
+            <div key={t.term}>
+              <dt className="inline font-medium">{t.term}: </dt>
+              <dd className="inline text-stone-700">{t.def}</dd>
+            </div>
+          ))}
+        </dl>
+      </Card>
       {error ? <div className="mb-3 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-800">{error}</div> : null}
       <Card title="Graduated discount tiers (invented): each slice of volume gets its own rate" className="mb-4">
         <ul className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
