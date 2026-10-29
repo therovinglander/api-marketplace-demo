@@ -12,6 +12,7 @@ import {
   type ModelId,
 } from "@/lib/pricing/calculator";
 import { evaluateTier } from "@/lib/pricing/tiers";
+import { PRESETS, isLosingMoney, whatToNotice } from "@/lib/pricing/notice";
 import { SEGMENT_VOLUME_RANGE, SLIDER_STEPS, formatRate, logToSlider, sliderToLog } from "@/lib/pricing/volume";
 import { plansFor, type PricingContext, type Segment } from "@/lib/pricing/load";
 import { Badge, Card, num, usd } from "@/components/ui";
@@ -85,9 +86,42 @@ export function CalculatorClient({ ctx }: { ctx: PricingContext }) {
   }, [i, segment, ctx]);
 
   const best = out.models.reduce((a, b) => (b.costPerBooking < a.costPerBooking ? b : a));
+  const notices = useMemo(() => whatToNotice(ctx, segment, i), [ctx, segment, i]);
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-stone-700">
+        <b>Who uses this:</b> partnerships, sales and pricing teams shaping a partner&apos;s terms, and a partner&apos;s tech or finance lead estimating their bill.
+      </p>
+
+      <Card title="What to notice">
+        <ol className="list-decimal space-y-1 pl-5 text-sm text-stone-700">
+          {notices.map((n) => (
+            <li key={n.title}>
+              <b>{n.title}</b> {n.body}
+            </li>
+          ))}
+        </ol>
+      </Card>
+
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Presets (illustrative)">
+        <span className="text-xs text-stone-500">Presets:</span>
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            type="button"
+            title={p.tooltip}
+            className="rounded border border-stone-300 bg-white px-2.5 py-1 text-sm hover:bg-stone-50"
+            onClick={() => {
+              setI(p.inputs);
+              setSegment(p.segment);
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
       <Card title="Inputs (illustrative)">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Searches / month" hint="log scale" value={i.S} min={INPUT_RANGES.S[0]} max={INPUT_RANGES.S[1]} step={10_000} log note={formatRate(i.S)} onChange={set("S")} />
@@ -124,9 +158,9 @@ export function CalculatorClient({ ctx }: { ctx: PricingContext }) {
             </thead>
             <tbody>
               {out.models.map((m) => (
-                <tr key={m.model} className="border-t border-stone-100">
+                <tr key={m.model} className={`border-t border-stone-100 ${isLosingMoney(m) ? "bg-red-50" : ""}`}>
                   <td className="py-1.5">
-                    {MODEL_LABEL[m.model]} {m.model === best.model ? <Badge tone="teal">cheapest for partner</Badge> : null}
+                    {MODEL_LABEL[m.model]} {m.model === best.model ? <Badge tone="teal">cheapest for partner</Badge> : null} {isLosingMoney(m) ? <Badge tone="red">losing money</Badge> : null}
                   </td>
                   <td className="text-right tabular-nums">{usd(m.bill)}</td>
                   <td className="text-right tabular-nums">{usd(m.supplierCost)}</td>
