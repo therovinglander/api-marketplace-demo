@@ -65,6 +65,12 @@ export async function authenticate(repo: Repo, authorization: string | null, now
 
 export async function recordFirstCall(repo: Repo, session: Doc, now: Date = new Date()): Promise<void> {
   if (session.firstCallAt) return;
-  const sec = Math.max(0, (now.getTime() - new Date(String(session.signupAt)).getTime()) / 1000);
-  await repo.update("onboarding_sessions", session._id, { firstCallAt: now.toISOString(), timeToFirstCallSec: sec });
+  // m13: write inside the repo's transaction queue so an unrelated rollback cannot revert it,
+  // and re-read the row so two first calls cannot both record.
+  await repo.transact(async (tx) => {
+    const fresh = await tx.findOne("onboarding_sessions", { _id: session._id });
+    if (!fresh || fresh.firstCallAt) return;
+    const sec = Math.max(0, (now.getTime() - new Date(String(fresh.signupAt)).getTime()) / 1000);
+    await tx.update("onboarding_sessions", session._id, { firstCallAt: now.toISOString(), timeToFirstCallSec: sec });
+  });
 }

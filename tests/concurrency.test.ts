@@ -4,6 +4,7 @@ import { FileRepo } from "@/lib/repo/file";
 import { ConflictError } from "@/lib/repo/types";
 import { editPriceBook, listVersions } from "@/lib/pricing/dealsService";
 import { decideProposal, DecisionConflictError, generateProposals } from "@/lib/matching/service";
+import { recordFirstCall, signup } from "@/lib/onboarding";
 
 const seedDir = path.join(__dirname, "..", "seed");
 const repo = () => new FileRepo({ seedDir });
@@ -91,6 +92,21 @@ describe("FileRepo transactions are isolated (real concurrency)", () => {
     const audits = (await r.find("audit_log")).filter((x) => x.action === "proposed");
     expect(proposals.length).toBe(audits.length);
     expect(new Set(proposals.map((p) => p._id)).size).toBe(proposals.length);
+  });
+
+  it("m13: recordFirstCall survives an unrelated failing transaction running at the same time", async () => {
+    const r = repo();
+    const s = await signup(r, "Test Partner");
+    const session = (await r.findOne("onboarding_sessions", { _id: s.sessionId }))!;
+    const failing = r.transact(async (tx) => {
+      await tx.insert("app_config", { _id: "tmp" });
+      await new Promise((res) => setTimeout(res, 20));
+      throw new Error("boom");
+    });
+    const rec = recordFirstCall(r, session);
+    await expect(failing).rejects.toThrow("boom");
+    await rec;
+    expect((await r.findOne("onboarding_sessions", { _id: s.sessionId }))?.firstCallAt).not.toBeNull();
   });
 
   it("a nested transact inside a transaction does not deadlock", async () => {

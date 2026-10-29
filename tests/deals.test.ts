@@ -74,6 +74,21 @@ describe("deal quote", () => {
     expect(q.partnerSavings).toBeCloseTo(0, 9);
     expect(q.blendedDiscountPct).toBeCloseTo(0, 9);
   });
+  it("M4: a token commitment buys (almost) nothing - 60M actual with 1 committed bills ~list", () => {
+    const i: Inputs = { S: 60_000_000, r: 2000, c: 0.85, h: 0.3 };
+    const q = dealQuote(i, 0.0004, 1, cost);
+    expect(q.dealBill).toBeCloseTo(24_000, 3);
+    expect(q.dealBill).toBeLessThan(24_000.001);
+    expect(dealQuote(i, 0.0004, 60_000_000, cost).dealBill).toBeCloseTo(20712, 6);
+  });
+  it("M4: bill is non-increasing in commitment up to actual usage and non-decreasing above it", () => {
+    const i: Inputs = { S: 60_000_000, r: 2000, c: 0.85, h: 0.3 };
+    const bill = (c: number) => dealQuote(i, 0.0004, c, cost).dealBill;
+    const upTo = [0, 1, 500_000, 1_000_000, 5_000_000, 10_000_000, 30_000_000, 59_999_999, 60_000_000];
+    for (let k = 1; k < upTo.length; k++) expect(bill(upTo[k])).toBeLessThanOrEqual(bill(upTo[k - 1]) + 1e-9);
+    const above = [60_000_000, 70_000_000, 100_000_000, 150_000_000];
+    for (let k = 1; k < above.length; k++) expect(bill(above[k])).toBeGreaterThanOrEqual(bill(above[k - 1]) - 1e-9);
+  });
   it("marginalBill is monotonic across every tier boundary", () => {
     const edges = [0, 999_999, 1_000_000, 1_000_001, 9_999_999, 10_000_000, 10_000_001, 100_000_000, 100_000_001, 500_000_000];
     const bills = edges.map((v) => marginalBill(v, 0.0004));

@@ -73,7 +73,10 @@ export function dealQuote(i: Inputs, listRatePerSearch: number, committedMonthly
   const discountPct = discountForCommitment(committedMonthlyVolume);
   const billedSearches = Math.max(i.S, committedMonthlyVolume);
   const listBill = i.S * listRatePerSearch;
-  const dealBill = committedMonthlyVolume > 0 ? marginalBill(billedSearches, listRatePerSearch) : listBill;
+  // M4: only the committed volume earns graduated discounts; anything above the commitment is billed at list.
+  // Commit 0 -> list; the bill falls as the commitment approaches actual usage and rises above it (take-or-pay).
+  const covered = Math.min(billedSearches, committedMonthlyVolume);
+  const dealBill = marginalBill(covered, listRatePerSearch) + Math.max(0, billedSearches - committedMonthlyVolume) * listRatePerSearch;
   const effectiveRate = billedSearches > 0 ? dealBill / billedSearches : listRatePerSearch;
   const sc = supplierCost(i, cost);
   return {
