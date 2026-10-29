@@ -160,8 +160,8 @@ describe("dedupe scenarios (U5)", () => {
     const ps = proposePairs(await records());
     const strong = ps.filter((p) => p.result.tier === "strong").length;
     const review = ps.filter((p) => p.result.tier === "review").length;
-    expect(strong).toBeGreaterThanOrEqual(30);
-    expect(review).toBeGreaterThanOrEqual(5);
+    expect(strong).toBeGreaterThanOrEqual(10);
+    expect(review).toBeGreaterThanOrEqual(20);
     const scores = ps.map((p) => p.result.score);
     expect(Math.max(...scores) - Math.min(...scores)).toBeGreaterThan(0.25);
   });

@@ -118,7 +118,7 @@ Weights and thresholds are invented starting points, not tuned on real data. Rul
 
 ### Seeded scenarios (all invented)
 
-Besides the 12 clean clusters, the seed has 8 deliberate test pairs and 2 orphans, so the queue shows a real score spread. The intended outcome is what a reviewer should do. Nothing auto-merges, so several intended approves and rejects land in the review band. `tests/matching.test.ts` asserts that every intended non-match scores below the 0.85 auto band, and the pairs are listed in `seed/dedupe_scenarios.json`.
+Besides the 12 clean clusters, the seed has 8 deliberate test pairs and 2 orphans, so the queue shows a real score spread (42 proposals, 0.63 to 0.98: 12 strong, 30 in the review band). The intended outcome is what a reviewer should do. Nothing auto-merges, so several intended approves and rejects land in the review band. `tests/matching.test.ts` asserts that every intended non-match scores below the 0.85 auto band, and the pairs are listed in `seed/dedupe_scenarios.json`.
 
 | Pair | Case | Intended | Score | Band |
 |---|---|---|---|---|
