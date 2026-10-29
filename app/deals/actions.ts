@@ -1,12 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getRepo } from "@/lib/repo";
+import { TOO_MANY, rateLimitHeaders } from "@/lib/rateLimit";
 import { ConflictError } from "@/lib/repo/types";
 import { DealValidationError, editPriceBook } from "@/lib/pricing/dealsService";
 
 export async function editDealAction(formData: FormData) {
+  if (rateLimitHeaders("deals", await headers())) redirect(`/deals?error=${encodeURIComponent(TOO_MANY)}`);
   const partnerId = String(formData.get("partnerId") ?? "");
   const baseVersion = Number(formData.get("baseVersion"));
   const volume = Number(String(formData.get("committedMonthlyVolume") ?? "").replace(/,/g, ""));

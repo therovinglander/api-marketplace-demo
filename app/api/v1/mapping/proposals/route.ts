@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRepo } from "@/lib/repo";
+import { guardWrite } from "@/lib/rateLimit";
 import { generateProposals } from "@/lib/matching/service";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,9 @@ export async function GET(req: Request) {
 }
 
 /** POST -> (re)generate proposals. Idempotent: never touches decided rows. */
-export async function POST() {
+export async function POST(req: Request) {
+  const blocked = guardWrite(req, "mapping");
+  if (blocked) return blocked;
   const summary = await generateProposals(await getRepo());
   return NextResponse.json({ illustrative: true, ...summary });
 }

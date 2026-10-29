@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
+import { guardWrite } from "@/lib/rateLimit";
 import { OnboardingValidationError, signup } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
 
 /** POST { partnerName } -> { sessionId, apiKey, signupAt }. The key is returned once and only its hash is stored. */
 export async function POST(req: Request) {
+  const blocked = guardWrite(req, "signup");
+  if (blocked) return blocked;
   let body: { partnerName?: unknown };
   const parsed = await readJsonObject(req);
   if (!parsed) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });

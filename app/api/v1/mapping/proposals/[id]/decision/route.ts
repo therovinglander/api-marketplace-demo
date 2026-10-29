@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readJsonObject } from "@/lib/http";
 import { getRepo } from "@/lib/repo";
+import { guardWrite } from "@/lib/rateLimit";
 import { decideProposal, NotFoundError } from "@/lib/matching/service";
 import { ConflictError } from "@/lib/repo/types";
 
@@ -8,6 +9,8 @@ export const dynamic = "force-dynamic";
 
 /** POST { decision: "approve" | "reject", note?: string } */
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const blocked = guardWrite(req, "mapping");
+  if (blocked) return blocked;
   const { id } = await ctx.params;
   let body: { decision?: unknown; note?: unknown };
   const parsed = await readJsonObject(req);
