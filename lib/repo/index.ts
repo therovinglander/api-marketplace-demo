@@ -1,5 +1,6 @@
 import path from "node:path";
 import { FileRepo } from "./file";
+import { resolveDataDir } from "./runtime";
 import type { Repo } from "./types";
 
 export * from "./types";
@@ -23,7 +24,7 @@ async function create(): Promise<Repo> {
     return MongoRepo.connect(uri, process.env.MONGODB_DB ?? "marketplace_demo");
   }
   const root = process.cwd();
-  return new FileRepo({ seedDir: path.join(root, "seed"), dataDir: path.join(root, ".data") });
+  return new FileRepo({ seedDir: path.join(root, "seed"), dataDir: resolveDataDir() });
 }
 
 /** Process-wide singleton (survives Next dev hot reloads). */
