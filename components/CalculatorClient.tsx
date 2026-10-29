@@ -12,6 +12,7 @@ import {
   type ModelId,
 } from "@/lib/pricing/calculator";
 import { evaluateTier } from "@/lib/pricing/tiers";
+import { SEGMENT_VOLUME_RANGE, SLIDER_STEPS, formatRate, logToSlider, sliderToLog } from "@/lib/pricing/volume";
 import { plansFor, type PricingContext, type Segment } from "@/lib/pricing/load";
 import { Badge, Card, num, usd } from "@/components/ui";
 
@@ -22,24 +23,36 @@ const MODEL_LABEL: Record<ModelId, string> = {
   hybrid: "Hybrid (platform fee + excess searches)",
 };
 
-function Field(props: { label: string; hint?: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
+function Field(props: { label: string; hint?: string; value: number; min: number; max: number; step: number; log?: boolean; note?: string; onChange: (v: number) => void }) {
   return (
     <label className="block text-sm">
       <span className="font-medium">{props.label}</span>
       {props.hint ? <span className="ml-2 text-xs text-stone-500">{props.hint}</span> : null}
       <div className="mt-1 flex items-center gap-2">
-        <input
-          type="range"
-          className="flex-1"
-          min={props.min}
-          max={props.max}
-          step={props.step}
-          value={props.value}
-          onChange={(e) => props.onChange(Number(e.target.value))}
-        />
+        {props.log ? (
+          <input
+            type="range"
+            className="flex-1"
+            min={0}
+            max={SLIDER_STEPS}
+            step={1}
+            value={logToSlider(props.value, props.min, props.max)}
+            onChange={(e) => props.onChange(sliderToLog(Number(e.target.value), props.min, props.max))}
+          />
+        ) : (
+          <input
+            type="range"
+            className="flex-1"
+            min={props.min}
+            max={props.max}
+            step={props.step}
+            value={props.value}
+            onChange={(e) => props.onChange(Number(e.target.value))}
+          />
+        )}
         <input
           type="number"
-          className="w-28 rounded border border-stone-300 px-2 py-1 text-right"
+          className="w-32 rounded border border-stone-300 px-2 py-1 text-right"
           min={props.min}
           max={props.max}
           step={props.step}
@@ -50,6 +63,7 @@ function Field(props: { label: string; hint?: string; value: number; min: number
           }}
         />
       </div>
+      {props.note ? <span className="mt-0.5 block text-xs text-stone-600">{props.note}</span> : null}
     </label>
   );
 }
@@ -76,17 +90,18 @@ export function CalculatorClient({ ctx }: { ctx: PricingContext }) {
     <div className="space-y-4">
       <Card title="Inputs (illustrative)">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Searches / month" value={i.S} min={INPUT_RANGES.S[0]} max={INPUT_RANGES.S[1]} step={10_000} onChange={set("S")} />
+          <Field label="Searches / month" hint="log scale" value={i.S} min={INPUT_RANGES.S[0]} max={INPUT_RANGES.S[1]} step={10_000} log note={formatRate(i.S)} onChange={set("S")} />
           <Field label="Look-to-book" hint="searches per attempted booking" value={i.r} min={INPUT_RANGES.r[0]} max={INPUT_RANGES.r[1]} step={50} onChange={set("r")} />
           <Field label="Booking success" hint="share of attempts that confirm" value={i.c} min={INPUT_RANGES.c[0]} max={INPUT_RANGES.c[1]} step={0.01} onChange={set("c")} />
           <Field label="Cache hit rate" hint="vendor claims up to ~70%" value={i.h} min={INPUT_RANGES.h[0]} max={INPUT_RANGES.h[1]} step={0.05} onChange={set("h")} />
           <label className="block text-sm">
             <span className="font-medium">Partner segment</span>
             <select className="mt-1 block rounded border border-stone-300 px-2 py-1" value={segment} onChange={(e) => setSegment(e.target.value as Segment)}>
-              <option value="agency">Agency (flat {usd(ctx.flatBySegment.agency, 0)})</option>
-              <option value="ota">OTA (flat {usd(ctx.flatBySegment.ota, 0)})</option>
-              <option value="bank">Bank (flat {usd(ctx.flatBySegment.bank, 0)})</option>
+              <option value="agency">Agency, typically {SEGMENT_VOLUME_RANGE.agency} (flat {usd(ctx.flatBySegment.agency, 0)})</option>
+              <option value="ota">OTA, typically {SEGMENT_VOLUME_RANGE.ota} (flat {usd(ctx.flatBySegment.ota, 0)})</option>
+              <option value="bank">Bank or loyalty, typically {SEGMENT_VOLUME_RANGE.bank} (flat {usd(ctx.flatBySegment.bank, 0)})</option>
             </select>
+            <span className="mt-0.5 block text-xs text-stone-600">Volume ranges are illustrative, not sourced.</span>
           </label>
         </div>
         <p className="mt-3 text-xs text-stone-600">

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { evaluateCache, sweepTtl, TTL_RANGE, type CacheConfig } from "@/lib/pricing/cache";
 import { INPUT_RANGES, type Inputs } from "@/lib/pricing/calculator";
+import { SLIDER_STEPS, formatRate, logToSlider, sliderToLog } from "@/lib/pricing/volume";
 import { Badge, Card, num, usd } from "@/components/ui";
 
 export function CacheClient({ cfg, costPerSearch, initialHitRate, initialTtl }: { cfg: CacheConfig; costPerSearch: number; initialHitRate: number; initialTtl: number }) {
@@ -28,7 +29,8 @@ export function CacheClient({ cfg, costPerSearch, initialHitRate, initialTtl }: 
           </label>
           <label className="block text-sm">
             <span className="font-medium">Searches / month: {num(i.S)}</span>
-            <input type="range" className="mt-1 w-full" min={INPUT_RANGES.S[0]} max={50_000_000} step={100_000} value={Math.min(i.S, 50_000_000)} onChange={(e) => setI({ ...i, S: Number(e.target.value) })} />
+            <span className="ml-2 text-xs text-stone-500">{formatRate(i.S)} (log scale)</span>
+            <input type="range" className="mt-1 w-full" min={0} max={SLIDER_STEPS} step={1} value={logToSlider(i.S, INPUT_RANGES.S[0], INPUT_RANGES.S[1])} onChange={(e) => setI({ ...i, S: sliderToLog(Number(e.target.value), INPUT_RANGES.S[0], INPUT_RANGES.S[1]) })} />
           </label>
           <label className="block text-sm">
             <span className="font-medium">Look-to-book: {num(i.r)}</span>

@@ -67,11 +67,12 @@ Definitions used throughout (all inputs are adjustable):
 
 | Symbol | Meaning | Default |
 |---|---|---|
-| `S` | searches per month | 5,000,000 |
+| `S` | searches per month (10k to 5B on a log-scale slider; the UI also shows searches per day and per second on a 30-day month) | 5,000,000 |
 | `r` | look-to-book: searches per *attempted* booking | 1,000 |
 | `c` | share of attempted bookings that confirm | 0.85 |
 | `h` | cache hit rate | 0.30 |
 
+- **Volume ranges by segment are judgement, not sourced:** agency roughly 100k to 5M searches a month, OTA 5M to 1B+, bank or loyalty 10M to 200M. They are labelled illustrative in the UI.
 - Attempted bookings `B = S / r`. Confirmed bookings `Bc = B x c`. The effective look-to-book on confirmed bookings is `S / Bc = r / c`.
 - Allowances and excess fees are measured against **confirmed** bookings, which is how L2B allowances are usually stated.
 - Supplier cost = `S x (1 - h) x cost per search + Bc x cost per booking` (only cache misses call suppliers). Suppliers are blended 50/30/20.

@@ -14,7 +14,7 @@ export interface Inputs {
 }
 
 export const INPUT_RANGES = {
-  S: [10_000, 500_000_000],
+  S: [10_000, 5_000_000_000],
   r: [50, 20_000],
   c: [0.5, 1],
   h: [0, 0.9],
