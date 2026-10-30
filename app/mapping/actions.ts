@@ -12,11 +12,11 @@ export interface ActionState {
   message: string;
 }
 
-export async function generateAction(): Promise<void> {
-  // Over the limit: do nothing (the form has no place to show a message; the next click works once the window passes).
-  if (rateLimitHeaders("mapping", await headers())) return;
-  await generateProposals(await getRepo());
+export async function generateAction(_prev: ActionState | null, _formData: FormData): Promise<ActionState> {
+  if (rateLimitHeaders("mapping", await headers())) return { ok: false, message: TOO_MANY };
+  const s = await generateProposals(await getRepo());
   revalidatePath("/mapping");
+  return { ok: true, message: `Done: ${s.created} new, ${s.refreshed} refreshed.` };
 }
 
 /** useActionState-compatible: returns a message the UI shows, instead of dropping the result. */

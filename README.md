@@ -202,14 +202,14 @@ The public deploy (Vercel) is **ephemeral file mode, by design**. Nothing is per
 | Edits survive | Yes, until you delete `.data/` | No. They are per server instance and vanish on a cold start or redeploy |
 | Database | Atlas if `MONGODB_URI` is set | Never. Mongo is refused unless `ALLOW_PUBLIC_DB=1` |
 | Banner | None | "Live demo: anyone can try it, and changes reset periodically. All data is fictional." |
-| Rate limits | None | Per IP, in memory: 10 sandbox keys per 10 min, 60 mapping actions per min, 30 deal edits per min (then `429` with `Retry-After`) |
+| Rate limits | Same limits, but one shared `local` bucket | Per IP, in memory: 10 sandbox keys per 10 min, 60 mapping actions and 60 sandbox calls per min, 30 deal edits per min (then `429` with `Retry-After`; the mapping page shows "Too many requests, try again in a minute. (Live demo rate limit.)") |
 | Body cap | 16 KB on JSON write routes (`413` if the `Content-Length` is larger, `400` if the body itself is) | same |
 
 - **No authentication, on purpose.** It is an open demo, so anyone can approve matches, edit deals and mint sandbox keys. The limits above only slow down a script; they are not security. Do not put real data in it.
 - **Atlas is for local runs.** The Mongo code path stays in the repo. If `MONGODB_URI` (or `DATA_MODE=mongo`) is set on Vercel, the app refuses Mongo mode (pages error with a message saying why), so a stray variable cannot open a database to the internet. Set `ALLOW_PUBLIC_DB=1` only if you have decided otherwise.
 - **To deploy:** import the repo in Vercel with no environment variables. Open every page, make an edit, then redeploy and confirm the edit is gone.
-- **Env vars:** `VERCEL` (set by the platform) switches on temp-dir writes, the banner, the rate limits and the Mongo guard. `PUBLIC_DEMO=1` does the same anywhere else. `DATA_DIR` sets the folder file mode writes to (it wins over both defaults). `ALLOW_PUBLIC_DB=1` lifts the Mongo guard.
-- **Limits that remain.** Counters and edits live in one server instance's memory or temp dir, so with several warm instances each has its own state and its own limits. Rate limiting trusts the `x-forwarded-for` header the platform sets; off Vercel it can be forged, which is why limits are only enforced on public deploys.
+- **Env vars:** `VERCEL` (set by the platform) switches on temp-dir writes, the banner and the Mongo guard. `PUBLIC_DEMO=1` does the same anywhere else. Rate limits and body caps are always on. `DATA_DIR` sets the folder file mode writes to (it wins over both defaults). `ALLOW_PUBLIC_DB=1` lifts the Mongo guard.
+- **Limits that remain.** Counters and edits live in one server instance's memory or temp dir, so with several warm instances each has its own state and its own limits. The limit key is the first `x-forwarded-for` hop, which Vercel overwrites with the client's real IP; off Vercel that header can be forged, so there everyone shares one `local` bucket and a missing header on Vercel shares one `unknown` bucket — limited either way, never exempt.
 
 ## Limits (honest)
 

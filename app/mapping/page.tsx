@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getRepo, type Doc } from "@/lib/repo";
 import { Badge, Card, PageTitle } from "@/components/ui";
-import { generateAction } from "./actions";
+import { GenerateForm } from "@/components/GenerateForm";
 import { DecisionForm } from "@/components/DecisionForm";
 import { SubmitButton } from "@/components/SubmitButton";
 
@@ -57,9 +57,7 @@ export default async function MappingPage() {
         subtitle="The same hotel arrives under different codes from three fictional suppliers. The matcher proposes merges with a score and the reasons; nothing merges until a human approves."
       />
       <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
-        <form action={generateAction}>
-          <SubmitButton label="Generate proposals" />
-        </form>
+        <GenerateForm />
         <span className="text-stone-600">
           {records.length} records · {open.length} to review · {decided.length} decided · {live.length} canonical hotels
         </span>

@@ -1,6 +1,5 @@
 // S9: abuse limits for the open, unauthenticated public demo. In-memory and per instance by design:
 // a cold start resets the counters, which is fine for a demo and keeps this dependency-free.
-import { isPublicDemo } from "@/lib/repo/runtime";
 
 export interface RateResult {
   ok: boolean;
@@ -14,7 +13,7 @@ export class RateLimiter {
     readonly limit: number,
     readonly windowMs: number,
     private now: () => number = Date.now,
-    private maxKeys = 5000,
+    private maxKeys = 10_000,
   ) {}
 
   check(key: string): RateResult {
@@ -51,6 +50,7 @@ export const BUCKETS = {
   signup: { limit: 10, windowMs: 10 * 60_000 }, // mints sandbox keys
   mapping: { limit: 60, windowMs: 60_000 }, // match decisions, regenerate
   deals: { limit: 30, windowMs: 60_000 }, // price book edits
+  sandbox: { limit: 60, windowMs: 60_000 }, // sandbox calls (write via recordFirstCall + the idempotency store)
 } as const;
 export type Bucket = keyof typeof BUCKETS;
 
@@ -69,27 +69,28 @@ export function resetRateLimits(): void {
 }
 
 /**
- * Client IP. On Vercel the platform sets x-forwarded-for (the client cannot forge the first hop there).
- * Elsewhere the header is spoofable, which is why limiting is only enforced on public deploys.
+ * Rate-limit key. On Vercel the platform overwrites x-forwarded-for with the client's real IP,
+ * so there, and only there, the first XFF hop is trusted (missing/empty becomes one shared
+ * "unknown" bucket, never an exemption). Off Vercel every header is client-controlled, so
+ * everyone shares one "local" bucket: limited, not spoofable into per-attacker buckets.
  */
-export function clientIp(h: Headers): string {
-  const xff = h.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim() || "unknown";
-  return h.get("x-real-ip")?.trim() || "unknown";
+export function clientIp(h: Headers, env: Record<string, string | undefined> = process.env): string {
+  if (!env.VERCEL) return "local";
+  const first = h.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return first || "unknown";
 }
 
-/** Rate-limit check for server actions, which have headers but no Request. Null = allowed. */
+/** Rate-limit check for server actions, which have headers but no Request. Null = allowed. Applies everywhere (product call: simpler, tested once). */
 export function rateLimitHeaders(bucket: Bucket, h: Headers, env: Record<string, string | undefined> = process.env): RateResult | null {
-  if (!isPublicDemo(env)) return null;
-  const r = limiter(bucket).check(clientIp(h));
+  const r = limiter(bucket).check(clientIp(h, env));
   return r.ok ? null : r;
 }
 
-export const TOO_MANY = "Too many requests from this address. This is a public demo; please wait a moment and try again.";
+export const TOO_MANY = "Too many requests, try again in a minute. (Live demo rate limit.)";
 
 /**
  * Gate for write routes. Returns a Response to send (429 or 413) or null to carry on.
- * Rate limits apply on public deploys only; the body-size cap applies everywhere.
+ * Rate limits and the body-size cap apply everywhere.
  */
 export function guardWrite(req: Request, bucket: Bucket, env: Record<string, string | undefined> = process.env): Response | null {
   const limited = rateLimitHeaders(bucket, req.headers, env);

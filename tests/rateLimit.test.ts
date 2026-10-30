@@ -38,10 +38,17 @@ describe("RateLimiter", () => {
 });
 
 describe("clientIp", () => {
-  it("takes the first x-forwarded-for hop, then x-real-ip, then unknown", () => {
-    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.9, 10.0.0.1" }))).toBe("203.0.113.9");
-    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.2" }))).toBe("198.51.100.2");
-    expect(clientIp(new Headers())).toBe("unknown");
+  it("off Vercel: one shared local bucket, whatever the client sends (headers are spoofable)", () => {
+    expect(clientIp(new Headers(), {})).toBe("local");
+    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.9" }), {})).toBe("local");
+    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.2" }), {})).toBe("local");
+  });
+  it("on Vercel: the first x-forwarded-for hop, which the platform overwrites with the real client IP", () => {
+    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.9, 10.0.0.1" }), { VERCEL: "1" })).toBe("203.0.113.9");
+  });
+  it("missing or empty XFF on Vercel: one shared unknown bucket, never unlimited", () => {
+    expect(clientIp(new Headers(), { VERCEL: "1" })).toBe("unknown");
+    expect(clientIp(new Headers({ "x-forwarded-for": " " }), { VERCEL: "1" })).toBe("unknown");
   });
 });
 
@@ -68,16 +75,28 @@ describe("guardWrite", () => {
     for (let i = 0; i < 11; i++) guardWrite(post({}), "signup", env);
     expect(guardWrite(post({}), "deals", env)).toBeNull();
   });
-  it("local (not public): no rate limit, so local behaviour is unchanged", () => {
-    for (let i = 0; i < 200; i++) expect(guardWrite(post({}), "signup", {})).toBeNull();
+  it("local: limited too (product call), via one shared bucket since headers are spoofable", () => {
+    for (let i = 0; i < 10; i++) expect(guardWrite(post({}, `203.0.113.${i}`), "signup", {})).toBeNull();
+    expect(guardWrite(post({}, "198.51.100.9"), "signup", {})!.status).toBe(429);
   });
   it("413 when Content-Length is over the cap, everywhere", () => {
     const r = guardWrite(post({}, "203.0.113.1", { "content-length": String(MAX_BODY_BYTES + 1) }), "deals", {})!;
     expect(r.status).toBe(413);
   });
-  it("server-action helper returns null locally and a result when spent", () => {
+  it("missing XFF on a public deploy still gets limited (one shared unknown bucket)", () => {
+    const env = { VERCEL: "1" };
+    const noIp = new Request("http://localhost/x", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+    for (let i = 0; i < 10; i++) expect(guardWrite(noIp, "signup", env)).toBeNull();
+    const r = guardWrite(noIp, "signup", env)!;
+    expect(r.status).toBe(429);
+  });
+  it("off Vercel on a public demo (PUBLIC_DEMO=1), everyone shares one local bucket", () => {
+    const env = { PUBLIC_DEMO: "1" };
+    for (let i = 0; i < 10; i++) expect(guardWrite(post({ partnerName: "a" }, `203.0.113.${i}`), "signup", env)).toBeNull();
+    expect(guardWrite(post({ partnerName: "b" }, "198.51.100.1"), "signup", env)!.status).toBe(429);
+  });
+  it("server-action helper returns null until the bucket is spent, then the retry info", () => {
     const h = new Headers({ "x-forwarded-for": "203.0.113.7" });
-    expect(rateLimitHeaders("deals", h, {})).toBeNull();
     for (let i = 0; i < 30; i++) expect(rateLimitHeaders("deals", h, { VERCEL: "1" })).toBeNull();
     expect(rateLimitHeaders("deals", h, { VERCEL: "1" })?.ok).toBe(false);
   });
@@ -148,9 +167,36 @@ describe("write routes answer 429 on a public deploy (S9)", () => {
     expect((await POST(post({}))).status).toBe(429);
   });
 
-  it("not public: the same burst is never limited", async () => {
+  it("sandbox route: 429 after 60 calls a minute (it writes via recordFirstCall)", async () => {
+    const { POST } = await import("@/app/api/v1/sandbox/[capability]/route");
+    const req = () =>
+      new Request("http://localhost/x", {
+        method: "POST",
+        headers: { "x-forwarded-for": "203.0.113.1", "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      });
+    const ctx = { params: Promise.resolve({ capability: "search" }) };
+    for (let i = 0; i < 60; i++) await POST(req(), ctx);
+    expect((await POST(req(), ctx)).status).toBe(429);
+  });
+
+  it("local run: the 11th signup in the window is 429 too (limits are on everywhere)", async () => {
     vi.stubEnv("VERCEL", "");
     const { POST } = await import("@/app/api/v1/onboarding/signup/route");
-    for (let i = 0; i < 12; i++) expect((await POST(post({ partnerName: `Local ${i}` }))).status).toBe(201);
+    for (let i = 0; i < 10; i++) expect((await POST(post({ partnerName: `Local ${i}` }))).status).toBe(201);
+    expect((await POST(post({ partnerName: "Local 11" }))).status).toBe(429);
+  });
+
+  it("generateAction returns the inline rate-limit message instead of doing nothing", async () => {
+    vi.doMock("next/headers", () => ({ headers: async () => new Headers({ "x-forwarded-for": "203.0.113.1" }) }));
+    vi.doMock("next/cache", () => ({ revalidatePath: () => undefined }));
+    const { generateAction } = await import("@/app/mapping/actions");
+    const { TOO_MANY } = await import("@/lib/rateLimit");
+    let last: { ok: boolean; message: string } = { ok: true, message: "" };
+    for (let i = 0; i < 61; i++) last = await generateAction(null, new FormData());
+    expect(last).toEqual({ ok: false, message: TOO_MANY });
+    expect(TOO_MANY).toBe("Too many requests, try again in a minute. (Live demo rate limit.)");
+    vi.doUnmock("next/headers");
+    vi.doUnmock("next/cache");
   });
 });

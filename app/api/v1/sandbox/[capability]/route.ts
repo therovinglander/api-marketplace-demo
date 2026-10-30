@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readJsonObject } from "@/lib/http";
+import { guardWrite } from "@/lib/rateLimit";
 import { getRepo } from "@/lib/repo";
 import { authenticate, recordFirstCall } from "@/lib/onboarding";
 import { executeSandbox, IdempotencyStore, SANDBOX_CAPABILITIES, type SandboxCapability } from "@/lib/sandbox";
@@ -18,6 +19,8 @@ const SIMULATE = new Set([429, 500, 502, 503]);
  * Book requires an Idempotency-Key; repeating a key returns the identical response (in-memory, resets on restart).
  */
 export async function POST(req: Request, ctx: { params: Promise<{ capability: string }> }) {
+  const blocked = guardWrite(req, "sandbox");
+  if (blocked) return blocked;
   const { capability } = await ctx.params;
   if (!(SANDBOX_CAPABILITIES as readonly string[]).includes(capability)) {
     return NextResponse.json({ error: `unknown capability ${capability}` }, { status: 404 });
